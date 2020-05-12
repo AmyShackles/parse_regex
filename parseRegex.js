@@ -1,77 +1,62 @@
-function parseRegex (regex) {
-  let regexArray = regex.toString().split('').slice(1, -1);
+const handleGroup = require("./groups.js");
+const anchors = require("./anchors.js");
+const handleLooks = require("./looks.js");
+
+function initialize(regex) {
+  if (!(regex instanceof RegExp)) {
+    if (regex[0] === "/" && regex[regex.length - 1] === "/") {
+      return regex.split("").slice(1, -1);
+    } else if (regex[0] === "/") {
+      return regex.split("").slice(1);
+    } else if (regex[regex.length - 1] === "/") {
+      return regex.split("").slice(0, -1);
+    } else {
+      return regex.split("");
+    }
+  } else {
+    return regex.toString().split("").slice(1, -1);
+  }
+}
+function parseRegex(regex) {
+  let regexArray = initialize(regex);
   let returnString = {
-    start: 'Match',
-    middle: '',
-    end: anchors(regexArray) || ''
+    start: "Match",
+    middle: "",
+    end: anchors(regexArray) || "",
   };
   let i = 0;
   let middle = [];
   while (i < regexArray.length) {
     let currentPhrase = [];
-    if (regexArray[i] === '[') {
-      currentPhrase.push(handleGroup(regexArray, i+1))
-    }
-    let quantifiers = handleQuantifiers(regexArray, i);
-    if (currentPhrase.length > 0) {
-      middle.push(currentPhrase.join(''))
-    }
-    i++
-  }
-  returnString.middle = middle ? middle.length > 1 ? middle.join(' followed by ') : middle : '';
-
-  return `${returnString.start} ${returnString.middle} ${returnString.end}`
-}
-function handleQuantifiers(regex, index) {
-  if (regex[index] === '*') {
-      return ' zero or more times'
-    } else if (regex[index] === '+') {
-      return ' one or more times'
-    } else if (regex[index] === '?') {
-      return ' zero or one time'
-    }
-    if (regex[index] === '{') {
-      if (!isNaN(regex[index + 1])) {
-        if (regex[index + 2] === '}') {
-          return ` ${regex[index + 1]} times`
-        } else if (regex[index + 2] === ',') {
-          if (regex[index + 3] === '}') {
-            return ` at least ${regex[index + 1]} times`
-          }
-          if (!isNaN(regex[index + 3]) && regex[index + 4] === '}')
-            return ` between ${regex[index + 1]} and ${regex[index + 3]} times`;
-
+    switch (regexArray[i]) {
+      case "[":
+        let group = handleGroup(regexArray, i + 1);
+        if (group.startsWith("Invalid")) {
+          return group;
         }
-      }
+        currentPhrase.push(group);
+      case "(":
+        if (regexArray[i + 1] === "?") {
+          console.log("middle", middle);
+          const prevPhrase = middle ? middle : regexArray.slice(0, i);
+          // If we are dealing with lookbehinds or lookaheads
+          // we will be replacing the contents of the middle array in the handleLooks function
+          middle = [];
+          currentPhrase.push(handleLooks(regexArray, i + 2, prevPhrase));
+        }
     }
-    return '';
-}
-function handleGroup(regex, startingIndex) {
-    let group = []
-    let i = startingIndex;
-    while (regex[i] !== ']') {
-      group.push(regex[i]);
-      i++;
+
+    if (currentPhrase.length > 0) {
+      middle.push(currentPhrase.join(""));
     }
-    let quantifiers = handleQuantifiers(regex, i+1)
-    
-    return`'${group.join(`' or '`)}'${quantifiers}`
-}
-function anchors(regex) {
-  if (regex[regex.length - 1] === '$' && regex[0] === '^') {
-    regex.shift();
-    regex.pop();
-    return `to the start and end of the line`
-  } else {
-    if (regex[regex.length - 1] === '$') {
-      regex.pop();
-      return `to the end of the line`
-    }
-    if (regex[0] === '^') {
-      regex.shift();
-      return `to the start of the line`
-    }
+    i++;
   }
+  returnString.middle = middle
+    ? middle.length > 1
+      ? middle.join(" followed by ")
+      : middle
+    : "";
+  return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-parseRegex(/^[what]{3,6}[123]*/)
+console.log(parseRegex("/[72]{3,2}/"));
