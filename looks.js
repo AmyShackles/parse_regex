@@ -11,13 +11,20 @@ function handleLooks(regex, index, prevPhrase) {
   }
   currentPhrase = currentPhrase ? currentPhrase.join("") : "";
   nextPhrase = nextPhrase ? nextPhrase.join("") : "";
-  prevPhrase = prevPhrase.join("");
+  prevPhrase =
+    prevPhrase.length > 1
+      ? prevPhrase.join(" followed by ")
+      : prevPhrase.join("");
   switch (regex[index]) {
     case "=": // positive lookahead
       return ` "${prevPhrase}" only if "${prevPhrase}" is followed by "${currentPhrase}"`;
     case "!": // negative lookahead
-      return ` "${prevPhrase}" only if "${prevPhrase}" is not followed by "${currentPHrase}"`;
+      return ` "${prevPhrase}" only if "${prevPhrase}" is not followed by "${currentPhrase}"`;
     case "<":
+      // If there is no nextPhrase, invalid
+      if (!nextPhrase) {
+        return "Invalid regular expression - cannot use a lookbehind at the end of input";
+      }
       if (regex[index + 1] === "=") {
         // positive lookbehind
         return ` "${nextPhrase}" only if "${nextPhrase}" follows "${currentPhrase}"`;

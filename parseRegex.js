@@ -30,22 +30,33 @@ function parseRegex(regex) {
     let currentPhrase = [];
     switch (regexArray[i]) {
       case "[":
-        let group = handleGroup(regexArray, i + 1);
+        let [group, index] = handleGroup(regexArray, i + 1);
+        console.log("regexArray[i] in switch", regexArray[i]);
         if (group.startsWith("Invalid")) {
           return group;
         }
+        // We only want to start searching after i
+        i = index;
         currentPhrase.push(group);
+        break;
       case "(":
+        console.log('regexArray[i] === "("', regexArray[i], "i", i);
         if (regexArray[i + 1] === "?") {
           console.log("middle", middle);
           const prevPhrase = middle ? middle : regexArray.slice(0, i);
           // If we are dealing with lookbehinds or lookaheads
           // we will be replacing the contents of the middle array in the handleLooks function
           middle = [];
-          currentPhrase.push(handleLooks(regexArray, i + 2, prevPhrase));
+          let look = handleLooks(regexArray, i + 2, prevPhrase);
+          if (look.startsWith("Invalid")) {
+            return look;
+          }
+          // We want to search for the index of the closing character after i
+          currentPhrase.push(look);
         }
+        break;
     }
-
+    console.log(`regexArray[${i}]`, regexArray[i]);
     if (currentPhrase.length > 0) {
       middle.push(currentPhrase.join(""));
     }
@@ -59,4 +70,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex("/[72]{3,2}/"));
+console.log(parseRegex("/[72]{2,5}[a-z][A-Z](?<=52)/"));
