@@ -56,7 +56,6 @@ function parseRegex(regex) {
         }
         break;
     }
-    console.log(`regexArray[${i}]`, regexArray[i]);
     if (currentPhrase.length > 0) {
       middle.push(currentPhrase.join(""));
     }
@@ -70,4 +69,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex("/[72]{2,5}[a-z][A-Z](?<=52)/"));
+console.log(parseRegex("/[72]{2,5}[a-z](?<=52)[A-Z]/"));

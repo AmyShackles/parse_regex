@@ -8,6 +8,7 @@ function handleLooks(regex, index, prevPhrase) {
   }
   if (regex[index] === "<") {
     nextPhrase = regex.slice(i + 1);
+    currentPhrase.shift();
   }
   currentPhrase = currentPhrase ? currentPhrase.join("") : "";
   nextPhrase = nextPhrase ? nextPhrase.join("") : "";
@@ -27,7 +28,7 @@ function handleLooks(regex, index, prevPhrase) {
       }
       if (regex[index + 1] === "=") {
         // positive lookbehind
-        return ` "${nextPhrase}" only if "${nextPhrase}" follows "${currentPhrase}"`;
+        return ` "${prevPhrase}" and "${nextPhrase}" only if "${nextPhrase}" follows "${currentPhrase}"`;
       } else if (regex[index + 1] === "!") {
         // negative lookbehind
         return ` "${nextPhrase}" only if "${nextPhrase}" does not follow "${currentPhrase}"`;
