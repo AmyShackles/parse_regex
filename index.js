@@ -74,4 +74,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex("/[72]{5,2}[a-z](?<=52)[A-Z](?<=2)"));
+// console.log(parseRegex("$$[123]^"));
