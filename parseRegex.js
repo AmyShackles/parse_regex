@@ -1,6 +1,7 @@
 const handleGroup = require("./groups.js");
 const anchors = require("./anchors.js");
 const handleLooks = require("./looks.js");
+const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
 function initialize(regex) {
   if (!(regex instanceof RegExp)) {
@@ -19,10 +20,14 @@ function initialize(regex) {
 }
 function parseRegex(regex) {
   let regexArray = initialize(regex);
+  let ending = anchors(regexArray);
+  if (ending instanceof InvalidRegularExpression) {
+    return `${ending.name}: ${ending.message}`;
+  }
   let returnString = {
     start: "Match",
     middle: "",
-    end: anchors(regexArray) || "",
+    end: ending || "",
   };
   let i = 0;
   let middle = [];
@@ -31,7 +36,7 @@ function parseRegex(regex) {
     switch (regexArray[i]) {
       case "[":
         let [group, index] = handleGroup(regexArray, i + 1);
-        console.log("regexArray[i] in switch", regexArray[i]);
+        // console.log("regexArray[i] in switch", regexArray[i]);
         if (group.startsWith("Invalid")) {
           return group;
         }
@@ -40,9 +45,9 @@ function parseRegex(regex) {
         currentPhrase.push(group);
         break;
       case "(":
-        console.log('regexArray[i] === "("', regexArray[i], "i", i);
+        // console.log('regexArray[i] === "("', regexArray[i], "i", i);
         if (regexArray[i + 1] === "?") {
-          console.log("middle", middle);
+          // console.log("middle", middle);
           const prevPhrase = middle ? middle : regexArray.slice(0, i);
           // If we are dealing with lookbehinds or lookaheads
           // we will be replacing the contents of the middle array in the handleLooks function
