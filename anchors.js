@@ -167,4 +167,11 @@ process.on("uncaughtException", (err) => {
   process.exit(1); //mandatory (as per the Node.js docs)
 });
 
-module.exports = anchors;
+module.exports = {
+  anchors,
+  areAnchorsValid,
+  removeEscapedIndices,
+  isItEscaped,
+  checkValidity,
+  indexesOf,
+};

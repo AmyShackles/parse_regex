@@ -1,5 +1,5 @@
 const handleGroup = require("./groups.js");
-const anchors = require("./anchors.js");
+const { anchors } = require("./anchors.js");
 const handleLooks = require("./looks.js");
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
@@ -53,8 +53,8 @@ function parseRegex(regex) {
           // we will be replacing the contents of the middle array in the handleLooks function
           middle = [];
           let look = handleLooks(regexArray, i + 2, prevPhrase);
-          if (look.startsWith("Invalid")) {
-            return look;
+          if (look instanceof InvalidRegularExpression) {
+            return `${look.name}: ${look.message}`;
           }
           // We want to search for the index of the closing character after i
           currentPhrase.push(look);
@@ -74,4 +74,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex("/[72]{2,5}[a-z](?<=52)[A-Z]/"));
+console.log(parseRegex("/[72]{5,2}[a-z](?<=52)[A-Z](?<=2)"));

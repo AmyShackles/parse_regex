@@ -1,3 +1,5 @@
+const InvalidRegularExpression = require("./InvalidRegularExpression.js");
+
 function handleQuantifiers(regex, index) {
   switch (regex[index]) {
     case "*":
@@ -29,12 +31,13 @@ function handleQuantifiers(regex, index) {
               } else {
                 // Invalid regular expression
                 return [
-                  `Invalid regular expression, {${regex[index + 1]}, ${
-                    regex[index + 3]
-                  }}.  You cannot define a range where the lower range (${
-                    regex[index + 1]
-                  }) is greater than higher range (${regex[index + 3]})`,
-                  -1,
+                  new InvalidRegularExpression(
+                    `Invalid regular expression, {${regex[index + 1]}, ${
+                      regex[index + 3]
+                    }}.  You cannot define a range where the lower range (${
+                      regex[index + 1]
+                    }) is greater than higher range (${regex[index + 3]})`
+                  ),
                 ];
               }
             }

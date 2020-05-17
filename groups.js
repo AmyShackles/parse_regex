@@ -1,4 +1,5 @@
 const handleQuantifiers = require("./quantifiers.js");
+const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
 function handleGroup(regex, startingIndex) {
   let group = [];
@@ -14,8 +15,8 @@ function handleGroup(regex, startingIndex) {
     i++;
   }
   let [quantifiers, index] = handleQuantifiers(regex, i + 1);
-  if (quantifiers.startsWith("Invalid")) {
-    return [quantifiers, -1];
+  if (quantifiers instanceof InvalidRegularExpression) {
+    return [`${quantifiers.name}: ${quantifiers.message}`];
   }
   console.log("index", index);
   return [`'${group.join(`' or '`)}'${quantifiers}`, index];

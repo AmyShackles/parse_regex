@@ -1,3 +1,5 @@
+const InvalidRegularExpression = require("./InvalidRegularExpression.js");
+
 function handleLooks(regex, index, prevPhrase) {
   let currentPhrase = [];
   let nextPhrase;
@@ -24,7 +26,9 @@ function handleLooks(regex, index, prevPhrase) {
     case "<":
       // If there is no nextPhrase, invalid
       if (!nextPhrase) {
-        return "Invalid regular expression - cannot use a lookbehind at the end of input";
+        return new InvalidRegularExpression(
+          "You cannot use a lookbehind at the end of input"
+        );
       }
       if (regex[index + 1] === "=") {
         // positive lookbehind
