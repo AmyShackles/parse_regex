@@ -1,16 +1,33 @@
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
 function anchors(regex) {
+  let valid;
   if (regex[regex.length - 1] === "$" && regex[0] === "^") {
-    regex.shift();
-    regex.pop();
-    return `to the start and end of the line`;
+    try {
+      valid = areAnchorsValid(regex);
+      regex.shift();
+      regex.pop();
+    } catch (error) {
+      return error;
+    }
+    return valid && `to the start and end of the line`;
   } else if (regex[regex.length - 1] === "$") {
-    regex.pop();
-    return `to the end of the line`;
+    try {
+      valid = areAnchorsValid(regex);
+      regex.pop();
+    } catch (error) {
+      return error;
+    }
+    return valid && `to the end of the line`;
   } else if (regex[0] === "^") {
-    regex.shift();
-    return `to the start of the line`;
+    try {
+      valid = areAnchorsValid(regex);
+      regex.shift();
+    } catch (error) {
+      return error;
+    }
+
+    return valid && `to the start of the line`;
   } else {
     if (regex.includes("$") || regex.includes("^")) {
       try {
@@ -23,22 +40,23 @@ function anchors(regex) {
 }
 
 function areAnchorsValid(regex) {
+  let errorMessage = [];
   /*
     A regular expression is invalid if ^ appears as the last character
     or if $ appears as the first character if there are other characters
   */
   if (regex.length > 1) {
     if (regex[0] === "$" && regex[regex.length - 1] === "^") {
-      throw new InvalidRegularExpression(
-        "Regular expression cannot start with an end of string anchor and cannot end with a start of string anchor"
+      errorMessage.push(
+        "Regular expression cannot start with an end of string anchor ($) and cannot end with a start of string anchor (^)."
       );
     } else if (regex[regex.length - 1] === "^") {
-      throw new InvalidRegularExpression(
-        "Regular expression cannot end with a start of string anchor"
+      errorMessage.push(
+        "Regular expression cannot end with a start of string anchor (^)."
       );
     } else if (regex[0] === "$") {
-      throw new InvalidRegularExpression(
-        "Regular expression cannot start with an end of string anchor"
+      errorMessage.push(
+        "Regular expression cannot start with an end of string anchor ($)."
       );
     }
   }
@@ -71,7 +89,7 @@ function areAnchorsValid(regex) {
     we have an invalid regular expression
   */
   if (characterSetStart.length !== characterSetEnd.length) {
-    throw new InvalidRegularExpression(
+    errorMessage.push(
       'The number of unescaped opening square brackets "[" is not equal to the number of unescaped closing square brackets "]", which makes this regular expression invalid.'
     );
   }
@@ -82,32 +100,47 @@ function areAnchorsValid(regex) {
   */
 
   if (characterSetStart.length === 0 && unEscapedCarats.length > 0) {
-    throw new InvalidRegularExpression(
+    errorMessage.push(
       "The ^ is a special character in regular expressions.  You either need to include it at the very beginning of the regular expression, inside of a character set (e.g, [^]), or escape it, (e.g., \\^)."
     );
   }
   if (characterSetStart.length === 0 && unEscapedDollars.length > 0) {
-    throw new InvalidRegularExpression(
+    errorMessage.push(
       "The $ is a special character in regular expressions.  You either need to include it at the very end of the regular expression, inside of a character set (e.g., [$]), or escape it (e.g., \\$)."
     );
   }
-  let areCaratsValid = true;
-  let areDollarsValid = false;
+  let areCaratsValid;
+  let areDollarsValid;
   if (unEscapedCarats.length > 0) {
-    arCaratsValid = checkValidity(
+    areCaratsValid = areAnchorsInCharacterSet(
       unEscapedCarats,
       characterSetStart,
       characterSetEnd
     );
   }
   if (unEscapedDollars.length > 0) {
-    areDollarsValid = checkValidity(
+    areDollarsValid = areAnchorsInCharacterSet(
       unEscapedDollars,
       characterSetStart,
       characterSetEnd
     );
   }
-
+  if (areDollarsValid === false && areCaratsValid === false) {
+    errorMessage.push(
+      "The dollar sign ($) and the carat (^) are special character in a regular expression.  The dollar sign ($) can either be used at the end of a regular expression to match the end of the string or must be contained in a character set (e.g, [$]) or escaped (e.g. \\$).  The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \\^)."
+    );
+  } else if (areDollarsValid === false) {
+    errorMessage.push(
+      "The dollar sign is a special character in a regular expression.  They can either be used at the end of a regular expression to match the end of the string or must be contained in a character set (e.g, [$]) or escaped (e.g. \\$)."
+    );
+  } else if (areCaratsValid === false) {
+    errorMessage.push(
+      "The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \\^)."
+    );
+  }
+  if (errorMessage.length > 0) {
+    throw new InvalidRegularExpression(errorMessage.join(" "));
+  }
   return areDollarsValid && areCaratsValid;
 }
 function removeEscapedIndices(regex, indices) {
@@ -119,7 +152,11 @@ function isItEscaped(regex, index) {
   }
   return false;
 }
-function checkValidity(anchorIndices, characterSetStarts, characterSetEndings) {
+function areAnchorsInCharacterSet(
+  anchorIndices,
+  characterSetStarts,
+  characterSetEndings
+) {
   let anchorIndex = 0;
   while (anchorIndex < anchorIndices.length) {
     let characterSetIndex = 0;
@@ -172,6 +209,6 @@ module.exports = {
   areAnchorsValid,
   removeEscapedIndices,
   isItEscaped,
-  checkValidity,
+  areAnchorsInCharacterSet,
   indexesOf,
 };
