@@ -18,8 +18,11 @@ function handleGroup(regex, startingIndex) {
   if (quantifiers instanceof InvalidRegularExpression) {
     return [`${quantifiers.name}: ${quantifiers.message}`];
   }
-  console.log("index", index);
-  return [`'${group.join(`' or '`)}'${quantifiers}`, index];
+  if (group.length > 0) {
+    return [`'${group.join(`' or '`)}'${quantifiers}`, index];
+  } else {
+    return [quantifiers, index];
+  }
 }
 
 module.exports = handleGroup;
