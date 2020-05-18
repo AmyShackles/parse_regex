@@ -4,25 +4,24 @@ function anchors(regex) {
   let valid;
   if (regex[regex.length - 1] === "$" && regex[0] === "^") {
     try {
+      regex = regex.slice(1, -1);
       valid = areAnchorsValid(regex);
-      regex.shift();
-      regex.pop();
     } catch (error) {
       return error;
     }
     return valid && `to the start and end of the line`;
   } else if (regex[regex.length - 1] === "$") {
     try {
+      regex = regex.slice(0, -1);
       valid = areAnchorsValid(regex);
-      regex.pop();
     } catch (error) {
       return error;
     }
     return valid && `to the end of the line`;
   } else if (regex[0] === "^") {
     try {
+      regex = regex.slice(1);
       valid = areAnchorsValid(regex);
-      regex.shift();
     } catch (error) {
       return error;
     }
@@ -48,15 +47,15 @@ function areAnchorsValid(regex) {
   if (regex.length > 1) {
     if (regex[0] === "$" && regex[regex.length - 1] === "^") {
       errorMessage.push(
-        "Regular expression cannot start with an end of string anchor ($) and cannot end with a start of string anchor (^)."
+        "Regular expressions cannot start with an end of string anchor ($) and cannot end with a start of string anchor (^)."
       );
     } else if (regex[regex.length - 1] === "^") {
       errorMessage.push(
-        "Regular expression cannot end with a start of string anchor (^)."
+        "Regular expressions cannot end with a start of string anchor (^)."
       );
     } else if (regex[0] === "$") {
       errorMessage.push(
-        "Regular expression cannot start with an end of string anchor ($)."
+        "Regular expressions cannot start with an end of string anchor ($)."
       );
     }
   }
@@ -98,50 +97,46 @@ function areAnchorsValid(regex) {
     If there are no character sets and there are unescaped
     carats or dollars, we know we have an invalid regex
   */
-
-  if (characterSetStart.length === 0 && unEscapedCarats.length > 0) {
-    errorMessage.push(
-      "The ^ is a special character in regular expressions.  You either need to include it at the very beginning of the regular expression, inside of a character set (e.g, [^]), or escape it, (e.g., \\^)."
-    );
-  }
-  if (characterSetStart.length === 0 && unEscapedDollars.length > 0) {
-    errorMessage.push(
-      "The $ is a special character in regular expressions.  You either need to include it at the very end of the regular expression, inside of a character set (e.g., [$]), or escape it (e.g., \\$)."
-    );
-  }
-  let areCaratsValid;
-  let areDollarsValid;
-  if (unEscapedCarats.length > 0) {
-    areCaratsValid = areAnchorsInCharacterSet(
+  if (characterSetStart.length === 0) {
+    if (unEscapedCarats.length > 0) {
+      errorMessage.push(
+        "The ^ is a special character in regular expressions.  You either need to include it at the very beginning of the regular expression, inside of a character set (e.g, [^]), or escape it, (e.g., \\^)."
+      );
+    }
+    if (unEscapedDollars.length > 0) {
+      errorMessage.push(
+        "The $ is a special character in regular expressions.  You either need to include it at the very end of the regular expression, inside of a character set (e.g., [$]), or escape it (e.g., \\$)."
+      );
+    }
+  } else {
+    let areCaratsValid = areAnchorsInCharacterSet(
       unEscapedCarats,
       characterSetStart,
       characterSetEnd
     );
-  }
-  if (unEscapedDollars.length > 0) {
-    areDollarsValid = areAnchorsInCharacterSet(
+    let areDollarsValid = areAnchorsInCharacterSet(
       unEscapedDollars,
       characterSetStart,
       characterSetEnd
     );
-  }
-  if (areDollarsValid === false && areCaratsValid === false) {
-    errorMessage.push(
-      "The dollar sign ($) and the carat (^) are special character in a regular expression.  The dollar sign ($) can either be used at the end of a regular expression to match the end of the string or must be contained in a character set (e.g, [$]) or escaped (e.g. \\$).  The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \\^)."
-    );
-  } else if (areDollarsValid === false) {
-    errorMessage.push(
-      "The dollar sign is a special character in a regular expression.  They can either be used at the end of a regular expression to match the end of the string or must be contained in a character set (e.g, [$]) or escaped (e.g. \\$)."
-    );
-  } else if (areCaratsValid === false) {
-    errorMessage.push(
-      "The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \\^)."
-    );
+    if (areDollarsValid === false && areCaratsValid === false) {
+      errorMessage.push(
+        "The dollar sign ($) and the carat (^) are special character in a regular expression.  The dollar sign ($) can either be used at the end of a regular expression to match the end of the string or must be contained in a character set (e.g, [$]) or escaped (e.g. \\$).  The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \\^)."
+      );
+    } else if (areDollarsValid === false) {
+      errorMessage.push(
+        "The dollar sign is a special character in a regular expression.  They can either be used at the end of a regular expression to match the end of the string or must be contained in a character set (e.g, [$]) or escaped (e.g. \\$)."
+      );
+    } else if (areCaratsValid === false) {
+      errorMessage.push(
+        "The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \\^)."
+      );
+    }
   }
   if (errorMessage.length > 0) {
     throw new InvalidRegularExpression(errorMessage.join(" "));
   }
-  return areDollarsValid && areCaratsValid;
+  return true;
 }
 function removeEscapedIndices(regex, indices) {
   return indices.filter((index) => !isItEscaped(regex, index));
