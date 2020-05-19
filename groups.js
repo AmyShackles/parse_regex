@@ -4,6 +4,11 @@ const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 function handleGroup(regex, startingIndex) {
   let group = [];
   let i = startingIndex;
+  let negated = false;
+  if (regex[i] === "^") {
+    negated = true;
+    ++i;
+  }
   while (regex[i] !== "]") {
     if (regex[i] === "-") {
       group[group.length - 1] = `"any of ${group[group.length - 1]} through ${
@@ -19,6 +24,9 @@ function handleGroup(regex, startingIndex) {
     return [`${quantifiers.name}: ${quantifiers.message}`];
   }
   if (group.length > 0) {
+    if (negated === true) {
+      return [`'not any of "${group.join(" or ")}"'${quantifiers}`, index];
+    }
     return [`'${group.join(`' or '`)}'${quantifiers}`, index];
   } else {
     return [quantifiers, index];
