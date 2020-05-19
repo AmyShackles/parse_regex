@@ -2,24 +2,11 @@ const handleGroup = require("./groups.js");
 const { anchors } = require("./anchors.js");
 const handleLooks = require("./looks.js");
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
+const { initialize, getFlags } = require("./setup.js");
 
-function initialize(regex) {
-  if (!(regex instanceof RegExp)) {
-    if (regex[0] === "/" && regex[regex.length - 1] === "/") {
-      return regex.split("").slice(1, -1);
-    } else if (regex[0] === "/") {
-      return regex.split("").slice(1);
-    } else if (regex[regex.length - 1] === "/") {
-      return regex.split("").slice(0, -1);
-    } else {
-      return regex.split("");
-    }
-  } else {
-    return regex.toString().split("").slice(1, -1);
-  }
-}
 function parseRegex(regex) {
-  let regexArray = initialize(regex);
+  let { regexArray, flags } = initialize(regex);
+  console.log("flags", flags);
   let ending = anchors(regexArray);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
@@ -74,4 +61,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-// console.log(parseRegex("$$[123]^"));
+console.log(parseRegex(/[123]/gim));
