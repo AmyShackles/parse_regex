@@ -5,9 +5,9 @@ const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 const { initialize, getFlags } = require("./setup.js");
 
 function parseRegex(regex) {
-  let { regexArray, flags } = initialize(regex);
+  let { regexString, flags } = initialize(regex);
   console.log("flags", flags);
-  let ending = anchors(regexArray);
+  let ending = anchors(regexString);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
   }
@@ -18,12 +18,12 @@ function parseRegex(regex) {
   };
   let i = 0;
   let middle = [];
-  while (i < regexArray.length) {
+  while (i < regexString.length) {
     let currentPhrase = [];
-    switch (regexArray[i]) {
+    switch (regexString[i]) {
       case "[":
-        let [group, index] = handleGroup(regexArray, i + 1);
-        // console.log("regexArray[i] in switch", regexArray[i]);
+        let [group, index] = handleGroup(regexString, i + 1);
+        // console.log("regexStringy[i] in switch", regexString[i]);
         if (group.startsWith("Invalid")) {
           return group;
         }
@@ -32,14 +32,14 @@ function parseRegex(regex) {
         currentPhrase.push(group);
         break;
       case "(":
-        // console.log('regexArray[i] === "("', regexArray[i], "i", i);
-        if (regexArray[i + 1] === "?") {
+        // console.log('regexString[i] === "("', regexString[i], "i", i);
+        if (regexString[i + 1] === "?") {
           // console.log("middle", middle);
-          const prevPhrase = middle ? middle : regexArray.slice(0, i);
+          const prevPhrase = middle ? middle : regexString.slice(0, i);
           // If we are dealing with lookbehinds or lookaheads
           // we will be replacing the contents of the middle array in the handleLooks function
           middle = [];
-          let look = handleLooks(regexArray, i + 2, prevPhrase);
+          let look = handleLooks(regexString, i + 2, prevPhrase);
           if (look instanceof InvalidRegularExpression) {
             return `${look.name}: ${look.message}`;
           }
@@ -61,4 +61,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex(/[123]/gim));
+console.log(parseRegex(/[123]{2,3}/gim));

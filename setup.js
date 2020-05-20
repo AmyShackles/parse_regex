@@ -19,15 +19,15 @@ function initialize(regex) {
 function getFlags(regexString) {
   if (regexString[0] === "/") {
     if (regexString[regexString.length - 1] === "/") {
-      return { regexArray: regexString.slice(1, -1).split(""), flags: null };
+      return { regexString: regexString.slice(1, -1), flags: null };
     } else {
       const endOfPattern = regexString.lastIndexOf("/");
       const flags = regexString.slice(endOfPattern + 1);
       regexString = regexString.slice(1, endOfPattern);
-      return { regexArray: regexString.split(""), flags };
+      return { regexString, flags };
     }
   } else {
-    return { regexArray: regexString.split(""), flags: null };
+    return { regexString, flags: null };
   }
 }
 
