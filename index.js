@@ -3,6 +3,7 @@ const { anchors } = require("./anchors.js");
 const handleLooks = require("./looks.js");
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 const { initialize, getFlags } = require("./setup.js");
+const { parseBackslash } = require("./backSlash.js");
 
 function parseRegex(regex) {
   let { regexString, flags } = initialize(regex);
@@ -16,10 +17,15 @@ function parseRegex(regex) {
     middle: "",
     end: ending || "",
   };
+  console.log("return string end", returnString.end);
+  console.log("ending", ending);
   let i = 0;
   let middle = [];
+
   while (i < regexString.length) {
     let currentPhrase = [];
+    let lastPhrase =
+      middle.length > 0 && middle[middle.length - 1].slice(0, -1);
     switch (regexString[i]) {
       case "[":
         let [group, index] = handleGroup(regexString, i + 1);
@@ -38,7 +44,7 @@ function parseRegex(regex) {
           const prevPhrase = middle ? middle : regexString.slice(0, i);
           // If we are dealing with lookbehinds or lookaheads
           // we will be replacing the contents of the middle array in the handleLooks function
-          middle = [];
+
           let look = handleLooks(regexString, i + 2, prevPhrase);
           if (look instanceof InvalidRegularExpression) {
             return `${look.name}: ${look.message}`;
@@ -46,6 +52,24 @@ function parseRegex(regex) {
           // We want to search for the index of the closing character after i
           currentPhrase.push(look);
         }
+        break;
+      case "\\":
+        const charAfterEscape = parseBackslash(regexString[++i]);
+        if (charAfterEscape !== undefined) {
+          currentPhrase.push(charAfterEscape);
+        }
+        break;
+      case "*":
+        middle[middle.length - 1] = lastPhrase += " zero or more times'";
+        break;
+      case "+":
+        middle[middle.length - 1] = lastPhrase += " one or more times'";
+        break;
+      case "?":
+        middle[middle.length - 1] = lastPhrase += " zero or one time'";
+        break;
+      default:
+        currentPhrase.push(`'${regexString[i]}' `);
         break;
     }
     if (currentPhrase.length > 0) {
@@ -61,4 +85,4 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex(/[123]{2,3}/gim));
+console.log(parseRegex(/\b\w*[^s\W]a\b/gim));
