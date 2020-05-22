@@ -1,4 +1,5 @@
 const handleQuantifiers = require("./quantifiers.js");
+const { parseBackslash } = require("./backSlash.js");
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
 function handleGroup(regex, startingIndex) {
@@ -15,6 +16,13 @@ function handleGroup(regex, startingIndex) {
         regex[++i]
       }"`;
     } else {
+      if (regex[i] === "\\") {
+        const escapedChar = parseBackslash(regex[i + 1]);
+        if (escapedChar !== undefined) {
+          group.push(escapedChar);
+          i += 1;
+        }
+      }
       group.push(regex[i]);
     }
     i++;
