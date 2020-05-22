@@ -8,3 +8,4 @@ Still to do:
 
 - Include logic for '.' when unescaped
 - Include logic for dealing with flags
+- Turn this into a program that can take command line arguments.  *facepalm*
