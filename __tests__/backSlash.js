@@ -1,4 +1,4 @@
-const { backSlash, parseBackslash } = require("../backSlash.js");
+const { backSlash, parseBackslash } = require("../components/backSlash.js");
 
 describe("backSlash", () => {
   describe("parseBacklash", () => {

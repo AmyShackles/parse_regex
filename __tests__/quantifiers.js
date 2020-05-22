@@ -1,5 +1,5 @@
-const handleQuantifiers = require("../quantifiers.js");
-const InvalidRegularExpression = require("../InvalidRegularExpression");
+const handleQuantifiers = require("../components/quantifiers.js");
+const InvalidRegularExpression = require("../components/InvalidRegularExpression");
 
 describe("handleQuantifiers", () => {
   test('handles "*" quantifier', () => {

@@ -5,8 +5,8 @@ const {
   isItEscaped,
   areAnchorsInCharacterSet,
   indexesOf,
-} = require("../anchors.js");
-const InvalidRegularExpression = require("../InvalidRegularExpression");
+} = require("../components/anchors.js");
+const InvalidRegularExpression = require("../components/InvalidRegularExpression");
 
 describe("anchors", () => {
   describe("anchors", () => {

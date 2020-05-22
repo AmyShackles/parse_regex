@@ -1,9 +1,9 @@
-const handleGroup = require("./groups.js");
-const { anchors } = require("./anchors.js");
-const handleLooks = require("./looks.js");
-const InvalidRegularExpression = require("./InvalidRegularExpression.js");
-const { initialize, getFlags } = require("./setup.js");
-const { parseBackslash } = require("./backSlash.js");
+const handleGroup = require("./components/groups.js");
+const { anchors } = require("./components/anchors.js");
+const handleLooks = require("./components/looks.js");
+const InvalidRegularExpression = require("./components/InvalidRegularExpression.js");
+const { initialize, getFlags } = require("./components/setup.js");
+const { parseBackslash } = require("./components/backSlash.js");
 
 function parseRegex(regex) {
   let { regexString, flags } = initialize(regex);

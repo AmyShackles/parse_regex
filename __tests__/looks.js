@@ -1,4 +1,4 @@
-const handleLooks = require("../looks.js");
+const handleLooks = require("../components/looks.js");
 
 describe("handleLooks", () => {
   test.todo("handleLooks should handle positive lookaheads");

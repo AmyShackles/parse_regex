@@ -1,4 +1,4 @@
-const { initialize, getFlags } = require("../setup.js");
+const { initialize, getFlags } = require("../components/setup.js");
 
 describe("initialize", () => {
   test("should handle if input is a string", () => {
