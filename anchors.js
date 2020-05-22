@@ -6,31 +6,31 @@ function anchors(regex) {
     try {
       regex = regex.slice(1, -1);
       valid = areAnchorsValid(regex);
+      return `to the start and end of the line`;
     } catch (error) {
       return error;
     }
-    return valid && `to the start and end of the line`;
   } else if (regex[regex.length - 1] === "$") {
     try {
       regex = regex.slice(0, -1);
       valid = areAnchorsValid(regex);
+      return `to the end of the line`;
     } catch (error) {
       return error;
     }
-    return valid && `to the end of the line`;
   } else if (regex[0] === "^") {
     try {
       regex = regex.slice(1);
       valid = areAnchorsValid(regex);
+      return `to the start of the line`;
     } catch (error) {
       return error;
     }
-
-    return valid && `to the start of the line`;
   } else {
     if (regex.includes("$") || regex.includes("^")) {
       try {
-        return areAnchorsValid(regex);
+        valid = areAnchorsValid(regex);
+        return;
       } catch (error) {
         return error;
       }
