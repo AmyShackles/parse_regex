@@ -13,7 +13,7 @@ function handleLooks(regex, index, prevPhrase) {
     currentPhrase.shift();
   }
   currentPhrase = currentPhrase ? currentPhrase.join("") : "";
-  nextPhrase = nextPhrase ? nextPhrase.join("") : "";
+  nextPhrase = nextPhrase ? nextPhrase : "";
   prevPhrase =
     prevPhrase.length > 1
       ? prevPhrase.join(" followed by ")
