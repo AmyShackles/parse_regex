@@ -1,6 +1,8 @@
 # parse_regex
 
-Project to house a tool to translate regular expressions into English and vice versa
+Project to house a tool to translate regular expressions into English
+
+If you would like to see this functionality in VSCode extension form, that repo can be found at https://github.com/AmyShackles/vscode_extension_parseregex
 
 The goal of this project is to be able to provide self-documentation of regular expressions.
 
