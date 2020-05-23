@@ -11,7 +11,12 @@ function parseRegex(regex) {
   let ending = anchors(regexString);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
+  } else if (ending === "to the end of the line") {
+    regexString = regexString.slice(0, -1);
+  } else if (ending === "to the start of the line") {
+    regexString = regexString.slice(1);
   }
+  console.log("ending", ending);
   let returnString = {
     start: "Match",
     middle: "",
@@ -22,7 +27,8 @@ function parseRegex(regex) {
 
   while (i < regexString.length) {
     let currentPhrase = [];
-    let lastPhrase = middle.length > 0 && middle[middle.length - 1].slice();
+    let lastPhrase =
+      middle.length > 0 && middle[middle.length - 1].slice(0, -1);
     switch (regexString[i]) {
       case "[":
         let [group, index] = handleGroup(regexString, i + 1);
