@@ -4,6 +4,7 @@ const handleLooks = require("./components/looks.js");
 const InvalidRegularExpression = require("./components/InvalidRegularExpression.js");
 const { initialize, getFlags } = require("./components/setup.js");
 const { parseBackslash } = require("./components/backSlash.js");
+const readline = require('readline');
 
 function parseRegex(regex) {
   let { regexString, flags } = initialize(regex);
@@ -85,4 +86,23 @@ function parseRegex(regex) {
   return `${returnString.start} ${returnString.middle} ${returnString.end}`;
 }
 
-console.log(parseRegex(/\b\w*[^s\W]a\b/gim));
+if (require.main == module) {
+  if (process.argv.length >= 3) {
+    // Take input from argument
+    console.log(parseRegex(process.argv[2]));
+  } else {
+    // Interactive prompt
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    function promptRegex() {
+      rl.question("> ", regex => {
+        console.log(parseRegex(regex));
+        promptRegex();
+      });
+    }
+    promptRegex();
+  }
+}
