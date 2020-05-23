@@ -35,9 +35,7 @@ function parseRegex(regex) {
         currentPhrase.push(group);
         break;
       case "(":
-        // console.log('regexString[i] === "("', regexString[i], "i", i);
         if (regexString[i + 1] === "?") {
-          // console.log("middle", middle);
           const prevPhrase = middle ? middle : regexString.slice(0, i);
           // If we are dealing with lookbehinds or lookaheads
           // we will be replacing the contents of the middle array in the handleLooks function
