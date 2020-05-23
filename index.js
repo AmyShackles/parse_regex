@@ -22,8 +22,7 @@ function parseRegex(regex) {
 
   while (i < regexString.length) {
     let currentPhrase = [];
-    let lastPhrase =
-      middle.length > 0 && middle[middle.length - 1].slice(0, -1);
+    let lastPhrase = middle.length > 0 && middle[middle.length - 1].slice();
     switch (regexString[i]) {
       case "[":
         let [group, index] = handleGroup(regexString, i + 1);
