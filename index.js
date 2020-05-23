@@ -4,11 +4,10 @@ const handleLooks = require("./components/looks.js");
 const InvalidRegularExpression = require("./components/InvalidRegularExpression.js");
 const { initialize, getFlags } = require("./components/setup.js");
 const { parseBackslash } = require("./components/backSlash.js");
-const readline = require('readline');
+const readline = require("readline");
 
 function parseRegex(regex) {
   let { regexString, flags } = initialize(regex);
-  console.log("flags", flags);
   let ending = anchors(regexString);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
@@ -18,8 +17,6 @@ function parseRegex(regex) {
     middle: "",
     end: ending || "",
   };
-  console.log("return string end", returnString.end);
-  console.log("ending", ending);
   let i = 0;
   let middle = [];
 
@@ -30,7 +27,6 @@ function parseRegex(regex) {
     switch (regexString[i]) {
       case "[":
         let [group, index] = handleGroup(regexString, i + 1);
-        // console.log("regexStringy[i] in switch", regexString[i]);
         if (group.startsWith("Invalid")) {
           return group;
         }
@@ -94,11 +90,11 @@ if (require.main == module) {
     // Interactive prompt
     const rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
     });
 
     function promptRegex() {
-      rl.question("> ", regex => {
+      rl.question("> ", (regex) => {
         console.log(parseRegex(regex));
         promptRegex();
       });
