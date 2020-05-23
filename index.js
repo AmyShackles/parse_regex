@@ -99,3 +99,5 @@ if (require.main == module) {
     promptRegex();
   }
 }
+
+module.exports = parseRegex;
