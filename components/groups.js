@@ -1,4 +1,4 @@
-const handleQuantifiers = require("./quantifiers.js");
+const { handleQuantifiers } = require("./quantifiers.js");
 const { parseBackslash } = require("./backSlash.js");
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
