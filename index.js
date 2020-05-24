@@ -4,6 +4,7 @@ const handleLooks = require("./components/looks.js");
 const InvalidRegularExpression = require("./components/InvalidRegularExpression.js");
 const { initialize, getFlags } = require("./components/setup.js");
 const { parseBackslash } = require("./components/backSlash.js");
+const { handleRangeQuantifiers } = require("./components/quantifiers.js");
 const readline = require("readline");
 
 function parseRegex(regex) {
@@ -16,7 +17,6 @@ function parseRegex(regex) {
   } else if (ending === "to the start of the line") {
     regexString = regexString.slice(1);
   }
-  console.log("ending", ending);
   let returnString = {
     start: "Match",
     middle: "",
@@ -52,6 +52,17 @@ function parseRegex(regex) {
           // We want to search for the index of the closing character after i
           currentPhrase.push(look);
         }
+        break;
+      case "{":
+        let [quantifiers, indexAfterRange] = handleRangeQuantifiers(
+          regexString,
+          i
+        );
+        if (quantifiers instanceof InvalidRegularExpression) {
+          return `${quantifiers.name}: ${quantifiers.message}`;
+        }
+        i = indexAfterRange;
+        currentPhrase.push(quantifiers);
         break;
       case "\\":
         const charAfterEscape = parseBackslash(regexString[++i]);

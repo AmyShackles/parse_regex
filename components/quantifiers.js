@@ -54,4 +54,39 @@ function handleQuantifiers(regex, index) {
   }
 }
 
-module.exports = handleQuantifiers;
+function handleRangeQuantifiers(regex, index) {
+  if (isNaN(regex[index + 1])) {
+    return ["", index + 1];
+  }
+  if (regex[index + 2] === "}") {
+    // e.g. {3}
+    return [` ${regex[index + 1]} times`, index + 2];
+  }
+  if (regex[index + 2] === "," && regex[index + 3] === "}") {
+    // e.g. {3,}
+    return [` at least ${regex[index + 1]} times`, index + 3];
+  }
+  if (
+    !isNaN(regex[index + 3]) &&
+    regex[index + 4] === "}" &&
+    regex[index + 1] < regex[index + 3]
+  ) {
+    // e.g. {3,5}
+    return [
+      ` between ${regex[index + 1]} and ${regex[index + 3]} times`,
+      index + 4,
+    ];
+  }
+  // Invalid regular expression
+  return [
+    new InvalidRegularExpression(
+      `Invalid regular expression, {${regex[index + 1]}, ${
+        regex[index + 3]
+      }}.  You cannot define a range where the lower range (${
+        regex[index + 1]
+      }) is greater than higher range (${regex[index + 3]})`
+    ),
+  ];
+}
+
+module.exports = { handleQuantifiers, handleRangeQuantifiers };
