@@ -105,15 +105,33 @@ if (require.main == module) {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
+      prompt: ">  ",
     });
+    rl.prompt();
 
-    function promptRegex() {
-      rl.question("> ", (regex) => {
-        console.log(parseRegex(regex));
-        promptRegex();
-      });
-    }
-    promptRegex();
+    rl.on("line", (line) => {
+      switch (line.trim()) {
+        case ".end":
+          console.log("Have a nice day!");
+          process.exit(0);
+        case ".q":
+          console.log("Have a nice day!");
+          process.exit(0);
+        case ".quit":
+          console.log("Have a nice day!");
+          process.exit(0);
+        case ".exit":
+          console.log("Have a nice day!");
+          process.exit(0);
+        default:
+          console.log(parseRegex(line.trim()));
+          break;
+      }
+      rl.prompt();
+    }).on("close", () => {
+      console.log("Have a nice day!");
+      process.exit(0);
+    });
   }
 }
 
