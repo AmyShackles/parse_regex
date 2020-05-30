@@ -97,7 +97,6 @@ const hexadecimalCharacters = {
 };
 
 function parseHexadecimals(substring) {
-  console.log("substring", substring);
   return hexadecimalCharacters[substring];
 }
 
