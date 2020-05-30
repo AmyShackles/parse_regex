@@ -5,6 +5,7 @@ const InvalidRegularExpression = require("./components/InvalidRegularExpression.
 const { initialize, getFlags } = require("./components/setup.js");
 const { parseBackslash } = require("./components/backSlash.js");
 const { handleRangeQuantifiers } = require("./components/quantifiers.js");
+const parseHexadecimals = require("./components/hexadecimals.js");
 const readline = require("readline");
 
 function parseRegex(regex) {
@@ -68,7 +69,18 @@ function parseRegex(regex) {
         const charAfterEscape = parseBackslash(regexString[++i]);
         if (charAfterEscape !== undefined) {
           currentPhrase.push(charAfterEscape);
+        } else if (regexString[i] === "x") {
+          let escaped = regexString.slice(i + 1, i + 3);
+          let parsedHex = parseHexadecimals(escaped);
+          if (parsedHex) {
+            currentPhrase.push(parsedHex);
+            i += 3;
+          } else {
+            currentPhrase.push(regexString[i++]);
+          }
+          break;
         }
+
         break;
       case "*":
         middle[middle.length - 1] = lastPhrase += " zero or more times'";
