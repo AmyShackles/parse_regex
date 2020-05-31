@@ -12,7 +12,7 @@ describe("handleGroups", () => {
   });
   test("if there is a quantifier range, should return a string description of that range", () => {
     expect(groups(["]", "{", 3, ",", 5, "}"], 0)).toEqual([
-      ` between 3 and 5 times`,
+      ` between three and five times`,
       5,
     ]);
   });
