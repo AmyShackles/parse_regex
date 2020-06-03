@@ -102,6 +102,13 @@ function parseRegex(regex) {
       case "?":
         middle[middle.length - 1] = lastPhrase += " zero or one time'";
         break;
+      case ".":
+        if (flags && flags.includes("s")) {
+          currentPhrase.push("'any character'");
+        } else {
+          currentPhrase.push("'any character except line breaks'");
+        }
+        break;
       default:
         currentPhrase.push(`'${regexString[i]}' `);
         break;

@@ -81,7 +81,6 @@ function areAnchorsValid(regex) {
   */
   const characterSetStart = removeEscapedIndices(regex, openBrackets);
   const characterSetEnd = removeEscapedIndices(regex, closedBrackets);
-
   /* 
     If the number of unescaped opening brackets is not equal
     to the number of unescaped closing brackets, 
@@ -142,7 +141,7 @@ function removeEscapedIndices(regex, indices) {
   return indices.filter((index) => !isItEscaped(regex, index));
 }
 function isItEscaped(regex, index) {
-  if (regex[index - 1] === "\\") {
+  if (regex[index - 1] === "\\" && regex[index - 2] !== "\\") {
     return true;
   }
   return false;
