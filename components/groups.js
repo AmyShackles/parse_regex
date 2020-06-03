@@ -11,29 +11,42 @@ function handleGroup(regex, startingIndex) {
     ++i;
   }
   while (regex[i] !== "]") {
-    if (regex[i] === "-") {
-      if (
-        regex[i - 1].match(/[0-9a-zA-Z]/) &&
-        regex[i + 1].match(/[0-9a-zA-Z]/)
-      ) {
-        group[group.length - 1] = `"any of ${group[group.length - 1]} through ${
-          regex[++i]
-        }"`;
-      } else {
-        // If it's not a valid range, we want to include the hyphen in the group
-        group.push(regex[i]);
-        // Need to increment the index because otherwise it will infinite loop matching on '-'
-        group.push(regex[++i]);
-      }
-    } else {
-      if (regex[i] === "\\") {
-        const escapedChar = parseBackslash(regex[i + 1]);
+    switch (regex[i]) {
+      case "-":
+        if (
+          regex[i - 1].match(/[0-9a-zA-Z]/) &&
+          regex[i + 1].match(/[0-9a-zA-Z]/)
+        ) {
+          group[group.length - 1] = `"any of '${
+            group[group.length - 1]
+          }' through '${regex[++i]}'"`;
+        } else {
+          // If it's not a valid range, we want to include the hyphen in the group
+          group.push(regex[i]);
+          // Need to increment the index because otherwise it will infinite loop matching on '-'
+          group.push(regex[++i]);
+        }
+        break;
+      case "\\":
+        const escapedChar = parseBackslash(regex[++i]);
         if (escapedChar !== undefined) {
           group.push(escapedChar);
-          i += 1;
         }
-      }
-      group.push(regex[i]);
+        break;
+      case ".":
+        group.push("the '.' symbol");
+        break;
+      case "+":
+        group.push("the '+' symbol");
+        break;
+      case "?":
+        group.push("the '?' symbol");
+        break;
+      case "*":
+        group.push("the '*' symbol");
+        break;
+      default:
+        group.push(regex[i]);
     }
     i++;
   }
