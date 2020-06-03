@@ -14,11 +14,11 @@ const quantity = {
 function handleQuantifiers(regex, index) {
   switch (regex[index]) {
     case "*":
-      return [" zero or more times", index];
+      return [" zero or more times'", index];
     case "+":
-      return [" one or more times", index];
+      return [" one or more times'", index];
     case "?":
-      return [" zero or one time", index];
+      return [" zero or one time'", index];
     case "{":
       // if the character after { is not a number
       if (isNaN(regex[index + 1])) {
@@ -32,7 +32,7 @@ function handleQuantifiers(regex, index) {
                 quantity[regex[index + 1]]
                   ? quantity[regex[index + 1]]
                   : regex[index + 1]
-              } times`,
+              } times'`,
               index + 2,
             ];
           case ",":
@@ -43,7 +43,7 @@ function handleQuantifiers(regex, index) {
                   quantity[regex[index + 1]]
                     ? quantity[regex[index + 1]]
                     : regex[index + 1]
-                } times`,
+                } times'`,
                 index + 3,
               ];
             } else if (!isNaN(regex[index + 3]) && regex[index + 4] === "}") {
@@ -58,7 +58,7 @@ function handleQuantifiers(regex, index) {
                     quantity[regex[index + 3]]
                       ? quantity[regex[index + 3]]
                       : regex[index + 3]
-                  } times`,
+                  } times'`,
                   index + 4,
                 ];
               } else {
@@ -98,7 +98,7 @@ function handleRangeQuantifiers(regex, index) {
         quantity[regex[index + 1]]
           ? quantity[regex[index + 1]]
           : regex[index + 1]
-      } times`,
+      } times'`,
       index + 2,
     ];
   }
@@ -109,7 +109,7 @@ function handleRangeQuantifiers(regex, index) {
         quantity[regex[index + 1]]
           ? quantity[regex[index + 1]]
           : regex[index + 1]
-      } times`,
+      } times'`,
       index + 3,
     ];
   }
@@ -128,7 +128,7 @@ function handleRangeQuantifiers(regex, index) {
         quantity[regex[index + 3]]
           ? quantity[regex[index + 3]]
           : regex[index + 3]
-      } times`,
+      } times'`,
       index + 4,
     ];
   }
