@@ -7,8 +7,6 @@ If you would like to see this functionality in VSCode extension form, that repo 
 The goal of this project is to be able to provide self-documentation of regular expressions.
 
 Still to do:
-
-- Include logic for '.' when unescaped
 - Include logic for dealing with flags
 
 Requirements to run locally:
