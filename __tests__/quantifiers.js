@@ -17,14 +17,14 @@ describe("handleQuantifiers", () => {
     );
   });
   test("should handle if a quantifier range has one digit", () => {
-    expect(handleQuantifiers("{5}", 0)).toEqual([` 5 times`, 2]);
+    expect(handleQuantifiers("{5}", 0)).toEqual([` five times`, 2]);
   });
   test("should handle if a quantifier range has a lower range only", () => {
-    expect(handleQuantifiers("{5,}", 0)).toEqual([" at least 5 times", 3]);
+    expect(handleQuantifiers("{5,}", 0)).toEqual([" at least five times", 3]);
   });
   test("should handle if a quantifier range has a lower and higher range", () => {
     expect(handleQuantifiers("{2,5}", 0)).toEqual([
-      " between 2 and 5 times",
+      " between two and five times",
       4,
     ]);
   });

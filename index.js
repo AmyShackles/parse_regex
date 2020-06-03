@@ -6,10 +6,11 @@ const { initialize, getFlags } = require("./components/setup.js");
 const { parseBackslash } = require("./components/backSlash.js");
 const { handleRangeQuantifiers } = require("./components/quantifiers.js");
 const parseHexadecimals = require("./components/hexadecimals.js");
+const { parseUnicode } = require("./components/unicode.js");
 const readline = require("readline");
 
 function parseRegex(regex) {
-  let { regexString, flags } = initialize(regex);
+  let { regexString, flags = [] } = initialize(regex);
   let ending = anchors(regexString);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
@@ -63,7 +64,7 @@ function parseRegex(regex) {
           return `${quantifiers.name}: ${quantifiers.message}`;
         }
         i = indexAfterRange;
-        currentPhrase.push(quantifiers);
+        middle[middle.length - 1] = lastPhrase += quantifiers;
         break;
       case "\\":
         const charAfterEscape = parseBackslash(regexString[++i]);
@@ -78,9 +79,19 @@ function parseRegex(regex) {
           } else {
             currentPhrase.push(regexString[i++]);
           }
-          break;
+        } else if (regexString[i] === "u") {
+          let [unicode, index] = parseUnicode(
+            regexString,
+            i,
+            flags ? flags.includes("u") : false
+          );
+          if (i === index) {
+            middle.push(unicode);
+          } else {
+            currentPhrase.push(unicode);
+            i = index;
+          }
         }
-
         break;
       case "*":
         middle[middle.length - 1] = lastPhrase += " zero or more times'";

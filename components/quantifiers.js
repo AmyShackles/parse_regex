@@ -1,5 +1,16 @@
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
+const quantity = {
+  "1": "one",
+  "2": "two",
+  "3": "three",
+  "4": "four",
+  "5": "five",
+  "6": "six",
+  "7": "seven",
+  "8": "eight",
+  "9": "nine",
+};
 function handleQuantifiers(regex, index) {
   switch (regex[index]) {
     case "*":
@@ -16,16 +27,38 @@ function handleQuantifiers(regex, index) {
         switch (regex[index + 2]) {
           case "}":
             // e.g. {3}
-            return [` ${regex[index + 1]} times`, index + 2];
+            return [
+              ` ${
+                quantity[regex[index + 1]]
+                  ? quantity[regex[index + 1]]
+                  : regex[index + 1]
+              } times`,
+              index + 2,
+            ];
           case ",":
             // e.g. {3,}
             if (regex[index + 3] === "}") {
-              return [` at least ${regex[index + 1]} times`, index + 3];
+              return [
+                ` at least ${
+                  quantity[regex[index + 1]]
+                    ? quantity[regex[index + 1]]
+                    : regex[index + 1]
+                } times`,
+                index + 3,
+              ];
             } else if (!isNaN(regex[index + 3]) && regex[index + 4] === "}") {
               // e.g. {3,5}
               if (regex[index + 1] < regex[index + 3]) {
                 return [
-                  ` between ${regex[index + 1]} and ${regex[index + 3]} times`,
+                  ` between ${
+                    quantity[regex[index + 1]]
+                      ? quantity[regex[index + 1]]
+                      : regex[index + 1]
+                  } and ${
+                    quantity[regex[index + 3]]
+                      ? quantity[regex[index + 3]]
+                      : regex[index + 3]
+                  } times`,
                   index + 4,
                 ];
               } else {
@@ -60,11 +93,25 @@ function handleRangeQuantifiers(regex, index) {
   }
   if (regex[index + 2] === "}") {
     // e.g. {3}
-    return [` ${regex[index + 1]} times`, index + 2];
+    return [
+      ` ${
+        quantity[regex[index + 1]]
+          ? quantity[regex[index + 1]]
+          : regex[index + 1]
+      } times`,
+      index + 2,
+    ];
   }
   if (regex[index + 2] === "," && regex[index + 3] === "}") {
     // e.g. {3,}
-    return [` at least ${regex[index + 1]} times`, index + 3];
+    return [
+      ` at least ${
+        quantity[regex[index + 1]]
+          ? quantity[regex[index + 1]]
+          : regex[index + 1]
+      } times`,
+      index + 3,
+    ];
   }
   if (
     !isNaN(regex[index + 3]) &&
@@ -73,7 +120,15 @@ function handleRangeQuantifiers(regex, index) {
   ) {
     // e.g. {3,5}
     return [
-      ` between ${regex[index + 1]} and ${regex[index + 3]} times`,
+      `  between ${
+        quantity[regex[index + 1]]
+          ? quantity[regex[index + 1]]
+          : regex[index + 1]
+      } and ${
+        quantity[regex[index + 3]]
+          ? quantity[regex[index + 3]]
+          : regex[index + 3]
+      } times`,
       index + 4,
     ];
   }
