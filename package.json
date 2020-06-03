@@ -6,7 +6,18 @@
   "author": "Amy Shackles <amyshackles@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "yarn test --coverage"
+  },
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    }
   },
   "devDependencies": {
     "jest": "^26.0.1"
