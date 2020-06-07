@@ -1,16 +1,34 @@
 function initialize(regex) {
-  if (!(regex instanceof RegExp)) {
-    return getFlags(regex);
-    /* 
-          Note: I do not remember why I had this in here
-          but I do not want to remove it in case I was
-          smarter previous to now
-          
-          // } else if (regex[0] === "/") {
-          //   return regex.split("").slice(1);
-          // } else if (regex[regex.length - 1] === "/") {
-          //   return regex.split("").slice(0, -1);
-        */
+  if (regex.match(/\/.+\//)) {
+    const string = regex.match(/\/.+\//)[0].slice(1, -1);
+    return getFlags(string);
+  } else if (regex.match(/RegExp\(.+\)/)) {
+    const startIndex = regex.indexOf("RegExp");
+    const lengthOfRegExp = "RegExp(".length + 1;
+    const endIndex = regex.indexOf('"', startIndex + lengthOfRegExp);
+    const string = regex.slice(startIndex + lengthOfRegExp, endIndex);
+    if (regex.match(",")) {
+      let flags = [];
+      let flagIndex = regex.indexOf(",") + 1;
+      let quotations = false;
+      while (flagIndex < regex.length) {
+        if (regex[flagIndex] === '"') {
+          if (quotations) {
+            break;
+          } else {
+            quotations = true;
+          }
+        } else if (regex[flagIndex] !== " ") {
+          flags.push(regex[flagIndex]);
+        }
+        flagIndex++;
+      }
+      return getFlags(`/${string}/${flags.join("")}`);
+    }
+    return getFlags(string);
+  }
+  if (!(regex.constructor === "RegExp")) {
+    return getFlags(regex.trim());
   } else {
     let regexString = regex.toString();
     return getFlags(regexString);
