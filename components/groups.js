@@ -17,14 +17,14 @@ function handleGroup(regex, startingIndex) {
           regex[i - 1].match(/[0-9a-zA-Z]/) &&
           regex[i + 1].match(/[0-9a-zA-Z]/)
         ) {
-          group[group.length - 1] = `"any of '${
+          group[group.length - 1] = `"any of ${
             group[group.length - 1]
-          }' through '${regex[++i]}'"`;
+          } through '${regex[++i]}'"`;
         } else {
           // If it's not a valid range, we want to include the hyphen in the group
-          group.push(regex[i]);
+          group.push(`'${regex[i]}'`);
           // Need to increment the index because otherwise it will infinite loop matching on '-'
-          group.push(regex[++i]);
+          group.push(`'${regex[++i]}'`);
         }
         break;
       case "\\":
@@ -33,20 +33,8 @@ function handleGroup(regex, startingIndex) {
           group.push(escapedChar);
         }
         break;
-      case ".":
-        group.push("the '.' symbol");
-        break;
-      case "+":
-        group.push("the '+' symbol");
-        break;
-      case "?":
-        group.push("the '?' symbol");
-        break;
-      case "*":
-        group.push("the '*' symbol");
-        break;
       default:
-        group.push(regex[i]);
+        group.push(`'${regex[i]}'`);
     }
     i++;
   }
@@ -56,9 +44,16 @@ function handleGroup(regex, startingIndex) {
   }
   if (group.length > 0) {
     if (negated === true) {
-      return [`'not any of "${group.join(" or ")}"'${quantifiers}`, index];
+      if (quantifiers) {
+        return [`'"not any of ${group.join(" or ")}"${quantifiers}'`, index];
+      }
+      return [`"not any of ${group.join(" or ")}"`, index];
     }
-    return [`'${group.join(`' or '`)}'${quantifiers}`, index];
+    if (quantifiers) {
+      return [`'${group.join(` or `)}${quantifiers}'`, index];
+    } else {
+      return [`${group.join(` or `)}`, index];
+    }
   } else {
     return [quantifiers, index];
   }

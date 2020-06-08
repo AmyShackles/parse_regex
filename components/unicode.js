@@ -12,7 +12,7 @@ function parseUnicode(regexString, index, bracePossible) {
       codepoint = parseInt(hex, 16);
       unicode = getUnicode(codepoint);
       if (unicode.length > 0) {
-        return [`'${unicode}'`, (index += 5)];
+        return [`'${unicode}'`, index + 6];
       }
     }
   } else {

@@ -57,6 +57,13 @@ function areAnchorsValid(regex) {
       errorMessage.push(
         "Regular expressions cannot start with an end of string anchor ($)."
       );
+    } else if (
+      regex.indexOf("$") === -1 &&
+      regex.indexOf("^") === -1 &&
+      regex.indexOf("[") === -1 &&
+      regex.indexOf("]") === -1
+    ) {
+      return true;
     }
   }
   // $ and ^ are still valid if they are escaped
