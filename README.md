@@ -6,10 +6,8 @@ If you would like to see this functionality in VSCode extension form, that repo 
 
 The goal of this project is to be able to provide self-documentation of regular expressions.
 
-Still to do:
-- Include logic for dealing with flags
-
 Requirements to run locally:
+
 - Node installed globally
 - yarn installed globally (only if running tests)
 
@@ -21,5 +19,6 @@ Instructions to run program currently:
   pass it as an argument
 
 To run tests:
+
 - `yarn` to install dependencies
 - `yarn test` to run tests
