@@ -7,6 +7,7 @@ const { parseBackslash } = require("./backSlash.js");
 const { handleQuantifiers } = require("./quantifiers.js");
 const parseHexadecimals = require("./hexadecimals.js");
 const { parseUnicode } = require("./unicode.js");
+const { getFlagText } = require("./flagText.js");
 
 function parseRegex(regex) {
   let { regexString, flags = [] } = initialize(regex);
@@ -24,6 +25,7 @@ function parseRegex(regex) {
     start: "Match",
     middle: "",
     end: ending ? ` ${ending}` : "",
+    flags: getFlagText(flags),
   };
   let i = 0;
   let middle = [];
@@ -153,7 +155,7 @@ function parseRegex(regex) {
       ? middle.join(" followed by ")
       : middle
     : "";
-  return `${returnString.start} ${returnString.middle}${returnString.end}`;
+  return `${returnString.start} ${returnString.middle}${returnString.end}${returnString.flags}`;
 }
 
 module.exports = { parseRegex };
