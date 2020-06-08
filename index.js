@@ -1,13 +1,16 @@
 const handleGroup = require("./components/groups.js");
 const { anchors } = require("./components/anchors.js");
-const handleLooks = require("./components/looks.js");
+const {
+  handlePositiveLooks,
+  handleNegativeLooks,
+} = require("./components/looks.js");
 const InvalidRegularExpression = require("./components/InvalidRegularExpression.js");
 const { initialize, getFlags } = require("./components/setup.js");
 const { parseBackslash } = require("./components/backSlash.js");
 const { handleRangeQuantifiers } = require("./components/quantifiers.js");
 const parseHexadecimals = require("./components/hexadecimals.js");
 const { parseUnicode } = require("./components/unicode.js");
-const readline = require("readline");
+const repl = require("repl");
 
 function parseRegex(regex) {
   let { regexString, flags = [] } = initialize(regex);
@@ -18,19 +21,20 @@ function parseRegex(regex) {
     regexString = regexString.slice(0, -1);
   } else if (ending === "to the start of the line") {
     regexString = regexString.slice(1);
+  } else if (ending === "to the start and end of the line") {
+    regexString = regexString.slice(1, -1);
   }
   let returnString = {
     start: "Match",
     middle: "",
-    end: ending || "",
+    end: ending ? ` ${ending}` : "",
   };
   let i = 0;
   let middle = [];
 
   while (i < regexString.length) {
     let currentPhrase = [];
-    let lastPhrase =
-      middle.length > 0 && middle[middle.length - 1].slice(0, -1);
+    let prevPhrase = middle.length > 0 ? middle : regexString.slice(0, i);
     switch (regexString[i]) {
       case "[":
         let [group, index] = handleGroup(regexString, i + 1);
@@ -43,16 +47,38 @@ function parseRegex(regex) {
         break;
       case "(":
         if (regexString[i + 1] === "?") {
-          const prevPhrase = middle ? middle : regexString.slice(0, i);
-          // If we are dealing with lookbehinds or lookaheads
-          // we will be replacing the contents of the middle array in the handleLooks function
+          if (regexString[i + 2] === "<") {
+            let endOfLookBehind = regexString.indexOf(")") + 1;
+            let nextPhrase = parseRegex(
+              `/${regexString.slice(endOfLookBehind)}/`
+            );
+            if (nextPhrase === "Match ") {
+              nextPhrase = "";
+            } else {
+              nextPhrase = nextPhrase.slice(6);
+            }
+            let [look, index] = handleNegativeLooks(
+              regexString,
+              i + 3,
+              nextPhrase
+            );
+            if (look instanceof InvalidRegularExpression) {
+              return `${look.name}: ${look.message}`;
+            }
+            return `${returnString.start}${look}`;
+          } else {
+            // If we are dealing with lookbehinds or lookaheads
+            // we will be replacing the contents of the middle array in the handleLooks function
 
-          let look = handleLooks(regexString, i + 2, prevPhrase);
-          if (look instanceof InvalidRegularExpression) {
-            return `${look.name}: ${look.message}`;
+            let [look, index] = handlePositiveLooks(
+              regexString,
+              i + 2,
+              prevPhrase
+            );
+            // We want to search for the index of the closing character after i
+            middle = [look];
+            i = index;
           }
-          // We want to search for the index of the closing character after i
-          currentPhrase.push(look);
         }
         break;
       case "{":
@@ -62,9 +88,12 @@ function parseRegex(regex) {
         );
         if (quantifiers instanceof InvalidRegularExpression) {
           return `${quantifiers.name}: ${quantifiers.message}`;
+        } else if (indexAfterRange === i) {
+          middle.push(`'${regexString[i]}'`);
+        } else {
+          i = indexAfterRange;
+          middle[middle.length - 1] = `"${prevPhrase}${quantifiers}"`;
         }
-        i = indexAfterRange;
-        middle[middle.length - 1] = lastPhrase += quantifiers;
         break;
       case "\\":
         const charAfterEscape = parseBackslash(regexString[++i]);
@@ -77,7 +106,7 @@ function parseRegex(regex) {
             currentPhrase.push(parsedHex);
             i += 3;
           } else {
-            currentPhrase.push(regexString[i++]);
+            currentPhrase.push(`'\\' followed by '${regexString[i]}'`);
           }
         } else if (regexString[i] === "u") {
           let [unicode, index] = parseUnicode(
@@ -88,19 +117,25 @@ function parseRegex(regex) {
           if (i === index) {
             middle.push(unicode);
           } else {
-            currentPhrase.push(unicode);
+            middle.push(unicode);
             i = index;
           }
         }
         break;
       case "*":
-        middle[middle.length - 1] = lastPhrase += " zero or more times'";
+        prevPhrase =
+          prevPhrase.length > 0 ? prevPhrase[prevPhrase.length - 1] : "";
+        middle[middle.length - 1] = `"${prevPhrase} zero or more times"`;
         break;
       case "+":
-        middle[middle.length - 1] = lastPhrase += " one or more times'";
+        prevPhrase =
+          prevPhrase.length > 0 ? prevPhrase[prevPhrase.length - 1] : "";
+        middle[middle.length - 1] = `"${prevPhrase} one or more times"`;
         break;
       case "?":
-        middle[middle.length - 1] = lastPhrase += " zero or one time'";
+        prevPhrase =
+          prevPhrase.length > 0 ? prevPhrase[prevPhrase.length - 1] : "";
+        middle[middle.length - 1] = `"${prevPhrase} zero or one time"`;
         break;
       case ".":
         if (flags && flags.includes("s")) {
@@ -110,7 +145,7 @@ function parseRegex(regex) {
         }
         break;
       default:
-        currentPhrase.push(`'${regexString[i]}' `);
+        currentPhrase.push(`'${regexString[i]}'`);
         break;
     }
     if (currentPhrase.length > 0) {
@@ -123,46 +158,57 @@ function parseRegex(regex) {
       ? middle.join(" followed by ")
       : middle
     : "";
-  return `${returnString.start} ${returnString.middle} ${returnString.end}`;
+  return `${returnString.start} ${returnString.middle}${returnString.end}`;
 }
 
+function evaluate(cmd, context, filename, callback) {
+  callback(null, parseRegex(cmd));
+}
+
+const initializeRepl = () => {
+  const replServer = repl.start({
+    prompt: "> ",
+    input: process.stdin,
+    output: process.stdout,
+    eval: evaluate,
+  });
+  replServer.on("exit", () => {
+    console.log("Have a nice day!");
+    process.exit(0);
+  });
+  replServer.defineCommand("end", {
+    help: "Exits the program",
+    action(name) {
+      this.clearBufferedCommand();
+      console.log("Have a nice day!");
+      process.exit(0);
+    },
+  });
+  replServer.defineCommand("quit", {
+    help: "Exits the program",
+    action(name) {
+      this.clearBufferedCommand();
+      console.log("Have a nice day!");
+      process.exit(0);
+    },
+  });
+  replServer.defineCommand("q", {
+    help: "Exits the program",
+    action(name) {
+      this.clearBufferedCommand();
+      console.log("Have a nice day!");
+      process.exit(0);
+    },
+  });
+};
 if (require.main == module) {
   if (process.argv.length >= 3) {
     // Take input from argument
     console.log(parseRegex(process.argv[2]));
   } else {
     // Interactive prompt
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      prompt: ">  ",
-    });
-    rl.prompt();
-
-    rl.on("line", (line) => {
-      switch (line.trim()) {
-        case ".end":
-          console.log("Have a nice day!");
-          process.exit(0);
-        case ".q":
-          console.log("Have a nice day!");
-          process.exit(0);
-        case ".quit":
-          console.log("Have a nice day!");
-          process.exit(0);
-        case ".exit":
-          console.log("Have a nice day!");
-          process.exit(0);
-        default:
-          console.log(parseRegex(line.trim()));
-          break;
-      }
-      rl.prompt();
-    }).on("close", () => {
-      console.log("Have a nice day!");
-      process.exit(0);
-    });
+    initializeRepl();
   }
 }
 
-module.exports = parseRegex;
+module.exports = { parseRegex, initializeRepl };

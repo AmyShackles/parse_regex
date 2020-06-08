@@ -6,6 +6,14 @@ describe("initialize", () => {
       regexString: "[abc]",
       flags: null,
     });
+    expect(initialize('new RegExp("[abc]")')).toEqual({
+      regexString: "[abc]",
+      flags: null,
+    });
+    expect(initialize('RegExp("[abc]", "g")')).toEqual({
+      regexString: "[abc]",
+      flags: "g",
+    });
   });
   test("should handle if input is a RegExp without flags", () => {
     expect(initialize(/[abc]/)).toEqual({

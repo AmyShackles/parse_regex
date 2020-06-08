@@ -1,6 +1,9 @@
 function initialize(regex) {
-  if (regex.match(/\/.+\//)) {
-    const string = regex.match(/\/.+\//)[0].slice(1, -1);
+  if (regex.constructor.name === "RegExp") {
+    let regexString = regex.toString();
+    return getFlags(regexString);
+  } else if (regex.match(/\/.+\/[gimsuy]{0,6}/)) {
+    const string = regex.match(/\/.+\/[gimsuy]{0,6}/)[0];
     return getFlags(string);
   } else if (regex.match(/RegExp\(.+\)/)) {
     const startIndex = regex.indexOf("RegExp");
@@ -27,12 +30,7 @@ function initialize(regex) {
     }
     return getFlags(string);
   }
-  if (!(regex.constructor === "RegExp")) {
-    return getFlags(regex.trim());
-  } else {
-    let regexString = regex.toString();
-    return getFlags(regexString);
-  }
+  return getFlags(regex.trim());
 }
 function getFlags(regexString) {
   if (regexString[0] === "/") {

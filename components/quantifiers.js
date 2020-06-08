@@ -22,7 +22,7 @@ function handleQuantifiers(regex, index) {
     case "{":
       // if the character after { is not a number
       if (isNaN(regex[index + 1])) {
-        return ["", index + 1];
+        return ["", index];
       } else {
         switch (regex[index + 2]) {
           case "}":
@@ -89,7 +89,7 @@ function handleQuantifiers(regex, index) {
 
 function handleRangeQuantifiers(regex, index) {
   if (isNaN(regex[index + 1])) {
-    return ["", index + 1];
+    return ["", index];
   }
   if (regex[index + 2] === "}") {
     // e.g. {3}
@@ -109,7 +109,7 @@ function handleRangeQuantifiers(regex, index) {
         quantity[regex[index + 1]]
           ? quantity[regex[index + 1]]
           : regex[index + 1]
-      } times'`,
+      } times`,
       index + 3,
     ];
   }
@@ -120,7 +120,7 @@ function handleRangeQuantifiers(regex, index) {
   ) {
     // e.g. {3,5}
     return [
-      `  between ${
+      ` between ${
         quantity[regex[index + 1]]
           ? quantity[regex[index + 1]]
           : regex[index + 1]
@@ -128,7 +128,7 @@ function handleRangeQuantifiers(regex, index) {
         quantity[regex[index + 3]]
           ? quantity[regex[index + 3]]
           : regex[index + 3]
-      } times'`,
+      } times`,
       index + 4,
     ];
   }
