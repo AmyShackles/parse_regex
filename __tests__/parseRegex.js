@@ -1,4 +1,4 @@
-const { parseRegex, initializeRepl } = require("../index.js");
+const { parseRegex } = require("../components/parseRegex.js");
 
 describe("parseRegex", () => {
   describe("anchor handling", () => {
@@ -40,8 +40,11 @@ describe("parseRegex", () => {
       expect(parseRegex(/[a-d]/)).toEqual("Match \"any of 'a' through 'd'\"");
     });
     it("should handle groups with quantifiers", () => {
-      expect(parseRegex(/[a-d]{3}/)).toEqual(
-        "Match '\"any of 'a' through 'd'\" three times'"
+      expect(parseRegex(/[a-d]{13}/)).toEqual(
+        "Match '\"any of 'a' through 'd'\" 13 times'"
+      );
+      expect(parseRegex(/[^123]{3,}/)).toEqual(
+        "Match '\"not any of '1' or '2' or '3'\" at least three times'"
       );
     });
   });

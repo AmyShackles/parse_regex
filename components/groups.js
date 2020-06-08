@@ -44,13 +44,16 @@ function handleGroup(regex, startingIndex) {
   }
   if (group.length > 0) {
     if (negated === true) {
-      return quantifiers
-        ? [`"not any of ${group.join(" or ")}${quantifiers}"`, index]
-        : [`"not any of ${group.join(" or ")}"`, index];
+      if (quantifiers) {
+        return [`'"not any of ${group.join(" or ")}"${quantifiers}'`, index];
+      }
+      return [`"not any of ${group.join(" or ")}"`, index];
     }
-    return quantifiers
-      ? [`'${group.join(` or `)}${quantifiers}`, index]
-      : [`${group.join(` or `)}`, index];
+    if (quantifiers) {
+      return [`'${group.join(` or `)}${quantifiers}'`, index];
+    } else {
+      return [`${group.join(` or `)}`, index];
+    }
   } else {
     return [quantifiers, index];
   }
