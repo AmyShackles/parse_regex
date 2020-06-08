@@ -104,7 +104,7 @@ describe("parseRegex", () => {
     });
     it("should handle dot when dotall flag is set", () => {
       expect(parseRegex(/.+/s)).toEqual(
-        "Match \"'any character' one or more times\""
+        "Match \"'any character' one or more times\" using dotall (allowing '.' to match newlines) search"
       );
     });
   });
@@ -119,13 +119,13 @@ describe("parseRegex", () => {
     });
     it("should handle \\u{HHHH} format if unicode flag is set", () => {
       expect(parseRegex(/\u{0041}+/u)).toEqual(
-        "Match \"'A' one or more times\""
+        "Match \"'A' one or more times\" using unicode search"
       );
       expect(parseRegex(/a\u{0041}b*/u)).toEqual(
-        "Match 'a' followed by 'A' followed by \"'b' zero or more times\""
+        "Match 'a' followed by 'A' followed by \"'b' zero or more times\" using unicode search"
       );
       expect(parseRegex(/\u{0041}?/u)).toEqual(
-        "Match \"'A' zero or one time\""
+        "Match \"'A' zero or one time\" using unicode search"
       );
     });
     it("should handle invalid unicode", () => {
