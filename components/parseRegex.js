@@ -85,6 +85,8 @@ function parseRegex(regex) {
           middle.push(`'${regexString[i]}'`);
         } else {
           i = indexAfterRange;
+          prevPhrase =
+            prevPhrase.length > 0 ? prevPhrase[prevPhrase.length - 1] : "";
           middle[middle.length - 1] = `"${prevPhrase}${quantifiers}"`;
         }
         break;
@@ -138,7 +140,7 @@ function parseRegex(regex) {
         }
         break;
       default:
-        currentPhrase.push(`'${regexString[i]}'`);
+        middle.push(`'${regexString[i]}'`);
         break;
     }
     if (currentPhrase.length > 0) {
