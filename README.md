@@ -17,6 +17,18 @@ Instructions to run program currently:
 - cd into folder
 - Run `node index.js` and type a regular expression at the prompt, or you may
   pass it as an argument
+  
+Example usage:
+
+`node index.js`
+```
+> /abc/gi
+"Match 'a' followed by 'b' followed by 'c' using global and case-insensitive search"
+> ^123$
+"Match '1' followed by '2' followed by '3' to the start and end of the line"
+> /.*\.txt$/
+`Match "'any character except line breaks' zero or more times" followed by 'the '.' symbol' followed by 't' followed by 'x' followed by 't' to the end of the line`
+```
 
 To run tests:
 
