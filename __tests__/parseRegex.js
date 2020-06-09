@@ -11,17 +11,17 @@ describe("parseRegex", () => {
     });
     it("should work if there is a starting anchor", () => {
       expect(parseRegex(/^ab/)).toEqual(
-        "Match 'a' followed by 'b' to the start of the line"
+        "Match 'a' followed by 'b' to the start of the string"
       );
     });
     it("should work if there is an ending anchor", () => {
       expect(parseRegex(/ab$/)).toEqual(
-        "Match 'a' followed by 'b' to the end of the line"
+        "Match 'a' followed by 'b' to the end of the string"
       );
     });
     it("should work if there is a starting and ending anchor", () => {
       expect(parseRegex(/^ab$/)).toEqual(
-        "Match 'a' followed by 'b' to the start and end of the line"
+        "Match 'a' followed by 'b' to the start and end of the string"
       );
     });
     it("should work if there is neither a starting or ending anchor", () => {
@@ -191,7 +191,7 @@ describe("parseRegex", () => {
         "Match \"'the '+' symbol' one or more times\""
       );
       expect(parseRegex(/\$$/)).toEqual(
-        "Match 'the '$' symbol' to the end of the line"
+        "Match 'the '$' symbol' to the end of the string"
       );
       expect(parseRegex(/\.pdf/)).toEqual(
         "Match 'the '.' symbol' followed by 'p' followed by 'd' followed by 'f'"
@@ -201,8 +201,4 @@ describe("parseRegex", () => {
       );
     });
   });
-
-  test.todo(
-    "program should return a helpful message if regular expressoin is invalid"
-  );
 });
