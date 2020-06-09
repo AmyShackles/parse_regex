@@ -1,41 +1,47 @@
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
-function anchors(regex) {
+function anchors(regex, flags) {
+  let multiline = flags && flags.includes("m");
+
   let valid;
   if (regex[regex.length - 1] === "$" && regex[0] === "^") {
     try {
       regex = regex.slice(1, -1);
       valid = areAnchorsValid(regex);
-      return `to the start and end of the line`;
+      return [
+        `to the start and end of the ${multiline ? "line" : "string"}`,
+        regex,
+      ];
     } catch (error) {
-      return error;
+      return [error, null];
     }
   } else if (regex[regex.length - 1] === "$") {
     try {
       regex = regex.slice(0, -1);
       valid = areAnchorsValid(regex);
-      return `to the end of the line`;
+      return [`to the end of the ${multiline ? "line" : "string"}`, regex];
     } catch (error) {
-      return error;
+      return [error, ""];
     }
   } else if (regex[0] === "^") {
     try {
       regex = regex.slice(1);
       valid = areAnchorsValid(regex);
-      return `to the start of the line`;
+      return [`to the start of the ${multiline ? "line" : "string"}`, regex];
     } catch (error) {
-      return error;
+      return [error, ""];
     }
   } else {
     if (regex.includes("$") || regex.includes("^")) {
       try {
         valid = areAnchorsValid(regex);
-        return;
+        return ["", regex];
       } catch (error) {
-        return error;
+        return [error, ""];
       }
     }
   }
+  return ["", regex];
 }
 
 function areAnchorsValid(regex) {

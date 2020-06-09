@@ -11,15 +11,11 @@ const { getFlagText } = require("./flagText.js");
 
 function parseRegex(regex) {
   let { regexString, flags = [] } = initialize(regex);
-  let ending = anchors(regexString);
+  let [ending, string] = anchors(regexString, flags);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
-  } else if (ending === "to the end of the line") {
-    regexString = regexString.slice(0, -1);
-  } else if (ending === "to the start of the line") {
-    regexString = regexString.slice(1);
-  } else if (ending === "to the start and end of the line") {
-    regexString = regexString.slice(1, -1);
+  } else {
+    regexString = string;
   }
   let returnString = {
     start: "Match",

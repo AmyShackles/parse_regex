@@ -10,48 +10,61 @@ const InvalidRegularExpression = require("../components/InvalidRegularExpression
 
 describe("anchors", () => {
   describe("anchors", () => {
-    test("should return `to the start and end of the line` if regular expression starts with ^ and ends with $", () => {
-      expect(anchors("^something$")).toEqual(
+    test("should return `to the start and end of the string` if regular expression starts with ^ and ends with $", () => {
+      expect(anchors("^something$")[0]).toEqual(
+        `to the start and end of the string`
+      );
+    });
+    test("should return `to the start and end of the line` if regular expression starts with ^, ends with $, and has multiline flag set", () => {
+      expect(anchors("^something$", "m")[0]).toEqual(
         `to the start and end of the line`
       );
     });
-    test("should return `to the end of the line` if regular expression ends with $", () => {
-      expect(anchors("something$")).toEqual(`to the end of the line`);
+    test("should return `to the end of the string` if regular expression ends with $", () => {
+      expect(anchors("something$")[0]).toEqual(`to the end of the string`);
     });
-    test("should return `to the start of the line` if regular expression starts with ^", () => {
-      expect(anchors("^something")).toEqual(`to the start of the line`);
+    test("should return  `to the end of the line` if regular expression ends with $ and multiline flag set", () => {
+      expect(anchors("something$", "m")[0]).toEqual(`to the end of the line`);
+    });
+    test("should return `to the start of the string` if regular expression starts with ^", () => {
+      expect(anchors("^something")[0]).toEqual(`to the start of the string`);
+    });
+    test("should return `to the start of the line` if regular expression starts with ^ and multiline flag set", () => {
+      expect(anchors("^something", "m")[0]).toEqual(`to the start of the line`);
     });
     test("should not error out if an excluded set is included", () => {
-      expect(anchors(/[^123]/.toString())).not.toBeInstanceOf(
+      expect(anchors(/[^123]/.toString())[0]).not.toBeInstanceOf(
         InvalidRegularExpression
       );
     });
     describe("error handling", () => {
       test("should return an InvalidRegularExpression if the regular expression starts with a $", () => {
-        expect(anchors("$amazing")).toBeInstanceOf(InvalidRegularExpression);
-        const error = anchors("$ama$ing$");
+        expect(anchors("$amazing")[0]).toBeInstanceOf(InvalidRegularExpression);
+        const [error] = anchors("$ama$ing$");
         expect(error).toBeInstanceOf(InvalidRegularExpression);
         expect(error.message).toBe(
           "Regular expressions cannot start with an end of string anchor ($). The $ is a special character in regular expressions.  You either need to include it at the very end of the regular expression, inside of a character set (e.g., [$]), or escape it (e.g., \\$)."
         );
       });
       test("should return an InvalidRegularExpression if the regular expression ends with a ^", () => {
-        expect(anchors("$amazing^")).toBeInstanceOf(InvalidRegularExpression);
-        const error = anchors("^^");
+        expect(anchors("$amazing^")[0]).toBeInstanceOf(
+          InvalidRegularExpression
+        );
+        const [error] = anchors("^^");
         expect(error).toBeInstanceOf(InvalidRegularExpression);
         expect(error.message).toBe(
           "The ^ is a special character in regular expressions.  You either need to include it at the very beginning of the regular expression, inside of a character set (e.g, [^]), or escape it, (e.g., \\^)."
         );
       });
       test("should return an InvalidRegularExpression if a ^ or $ appears in the regular expression outside of a character set without being escaped", () => {
-        const error = anchors("^$a$");
+        const [error] = anchors("^$a$");
         expect(error).toBeInstanceOf(InvalidRegularExpression);
         expect(error.message).toBe(
           "Regular expressions cannot start with an end of string anchor ($). The $ is a special character in regular expressions.  You either need to include it at the very end of the regular expression, inside of a character set (e.g., [$]), or escape it (e.g., \\$)."
         );
       });
       test("should return an InvalidRegularExpression if it starts with '$' and ends with '^'", () => {
-        expect(anchors("$a^")).toBeInstanceOf(InvalidRegularExpression);
+        expect(anchors("$a^")[0]).toBeInstanceOf(InvalidRegularExpression);
       });
     });
   });
