@@ -34,10 +34,6 @@ describe("anchors", () => {
     });
     test("should not error out if an excluded set is included", () => {
       expect(anchors(RegExp("^[123]").toString())[0]).not.toBeInstanceOf(
-        // Invalid Regular Expression: The carat (^) can either be used at the beginning of a regular expression to match the start of the string or must be contained in a character set (e.g, [^]) or escaped (e.g. \^).
-        // Match "not any of '1' or '2' or '3'"
-        // Match "not any of '1' or '2' or '3'"
-        // Match "not any of '1' or '2' or '3'"
         InvalidRegularExpression
       );
     });

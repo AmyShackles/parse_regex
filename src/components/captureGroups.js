@@ -1,4 +1,3 @@
-// const { invalidIdentifier } = require("../utils/invalidIdentifier.js");
 function extractCaptures(string) {
   let captureRegex = /(?<non_capture_group>\(\?:.+?\))|(?<named_capture_group>\(\?<(?<name>.+?)>.+?\))|(?<capture_group>\([^\?].*?\))/g;
 

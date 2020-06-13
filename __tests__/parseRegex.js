@@ -1,4 +1,5 @@
 const { parseRegex } = require("../src/components/parseRegex.js");
+const InvalidRegularExpression = require("../src/components/InvalidRegularExpression.js");
 
 describe("parseRegex", () => {
   describe("anchor handling", () => {

@@ -1,4 +1,5 @@
 const { initialize, getFlags } = require("../src/components/setup.js");
+const InvalidRegularExpression = require("../src/components/InvalidRegularExpression.js");
 
 describe("initialize", () => {
   test("should handle if input is a string", () => {
@@ -6,11 +7,11 @@ describe("initialize", () => {
       regexString: "[abc]",
       flags: "",
     });
-    expect(initialize(new RegExp("[abc]"))).toEqual({
+    expect(initialize("/[abc]/u")).toEqual({
       regexString: "[abc]",
-      flags: "",
+      flags: "u",
     });
-    expect(initialize(RegExp("[abc]", "g"))).toEqual({
+    expect(initialize("/[abc]/g")).toEqual({
       regexString: "[abc]",
       flags: "g",
     });
@@ -26,5 +27,12 @@ describe("initialize", () => {
       regexString: "[abc]",
       flags: "gim",
     });
+  });
+  test("should return a syntax error if regular expression is invalid", () => {
+    expect(() => {
+      initialize(/[ab]{6,3}/);
+    }).toThrow(
+      "Invalid regular expression: /[ab]{6,3}/: numbers out of order in {} quantifier"
+    );
   });
 });
