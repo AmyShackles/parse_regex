@@ -1,4 +1,4 @@
-const { parseUnicode, getUnicode } = require("../components/unicode.js");
+const { parseUnicode, getUnicode } = require("../src/components/unicode.js");
 
 describe("unicode parsing", () => {
   describe("getUnicode", () => {

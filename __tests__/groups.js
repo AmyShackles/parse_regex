@@ -1,4 +1,4 @@
-const groups = require("../components/groups.js");
+const groups = require("../src/components/groups.js");
 
 describe("handleGroups", () => {
   test("should handle positive character sets", () => {

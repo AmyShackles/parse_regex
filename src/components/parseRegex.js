@@ -2,27 +2,35 @@ const handleGroup = require("./groups.js");
 const { anchors } = require("./anchors.js");
 const { handlePositiveLooks, handleNegativeLooks } = require("./looks.js");
 const InvalidRegularExpression = require("./InvalidRegularExpression.js");
-const { initialize, getFlags } = require("./setup.js");
+const { initialize } = require("./setup.js");
 const { parseBackslash } = require("./backSlash.js");
 const { handleQuantifiers } = require("./quantifiers.js");
-const parseHexadecimals = require("./hexadecimals.js");
 const { parseUnicode } = require("./unicode.js");
 const { getFlagText } = require("./flagText.js");
+const { extractCaptures } = require("./captureGroups.js");
 
 function parseRegex(regex) {
-  let { regexString, flags = [] } = initialize(regex);
+  let { regexString, flags = "" } = initialize(regex);
+  if (regexString instanceof InvalidRegularExpression) {
+    return `${regexString.message}`;
+  }
+  if (
+    regexString instanceof Error ||
+    regexString instanceof InvalidRegularExpression
+  ) {
+    return `${regexString.name}: ${regexString.messaage}`;
+  }
   let [ending, string] = anchors(regexString, flags);
   if (ending instanceof InvalidRegularExpression) {
     return `${ending.name}: ${ending.message}`;
   } else {
     regexString = string;
   }
-  let returnString = {
-    start: "Match",
-    middle: "",
-    end: ending ? ` ${ending}` : "",
-    flags: getFlagText(flags),
-  };
+  const regularExpression = extractCaptures(regexString);
+  regularExpression.start = "Match";
+  regularExpression.middle = "";
+  regularExpression.end = ending ? ` ${ending}` : "";
+  regularExpression.flags = getFlagText(flags);
   let i = 0;
   let middle = [];
 
@@ -40,6 +48,28 @@ function parseRegex(regex) {
         currentPhrase.push(group);
         break;
       case "(":
+        if (regularExpression[i]) {
+          let key = regularExpression[i]["capture group"]
+            ? "capture group"
+            : regularExpression[i]["non-capture group"]
+            ? "non-capture group"
+            : regularExpression[i]["named capture group"]
+            ? "named capture group"
+            : "";
+          const endIndex = regularExpression[i][key].endingIndex - 1;
+          let group = parseRegex(`/${regularExpression[i][key].group}/`);
+          if (group === "Match ") {
+            group = "";
+          } else {
+            group = group.slice(6);
+          }
+          const description =
+            key === "named capture group"
+              ? `(creating a ${key} by the name of <${regularExpression[i][key].name}> of ${group})`
+              : `(creating a ${key} of ${group})`;
+          middle.push(`${group} ${description}`);
+          i = endIndex;
+        }
         if (regexString[i + 1] === "?") {
           if (regexString[i + 2] === "<") {
             let endOfLookBehind = regexString.indexOf(")") + 1;
@@ -59,7 +89,7 @@ function parseRegex(regex) {
             if (look instanceof InvalidRegularExpression) {
               return `${look.name}: ${look.message}`;
             }
-            return `${returnString.start}${look}`;
+            return `${regularExpression.start}${look}`;
           } else {
             // If we are dealing with lookbehinds or lookaheads
             // we will be replacing the contents of the middle array in the handleLooks function
@@ -93,10 +123,11 @@ function parseRegex(regex) {
         if (charAfterEscape !== undefined) {
           currentPhrase.push(charAfterEscape);
         } else if (regexString[i] === "x") {
-          let escaped = regexString.slice(i + 1, i + 3);
-          let parsedHex = parseHexadecimals(escaped);
+          const hex = regexString.slice(i + 1, i + 3);
+          const codepoint = parseInt(hex, 16);
+          const parsedHex = codepoint && String.fromCodePoint(codepoint);
           if (parsedHex) {
-            currentPhrase.push(parsedHex);
+            currentPhrase.push(`'${parsedHex}'`);
             i += 3;
           } else {
             currentPhrase.push(`'\\' followed by '${regexString[i]}'`);
@@ -146,12 +177,12 @@ function parseRegex(regex) {
     }
     i++;
   }
-  returnString.middle = middle
+  regularExpression.middle = middle
     ? middle.length > 1
       ? middle.join(" followed by ")
       : middle
     : "";
-  return `${returnString.start} ${returnString.middle}${returnString.end}${returnString.flags}`;
+  return `${regularExpression.start} ${regularExpression.middle}${regularExpression.end}${regularExpression.flags}`;
 }
 
-module.exports = { parseRegex };
+exports.parseRegex = parseRegex;

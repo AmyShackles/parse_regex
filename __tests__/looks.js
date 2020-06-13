@@ -1,7 +1,7 @@
 const {
   handlePositiveLooks,
   handleNegativeLooks,
-} = require("../components/looks.js");
+} = require("../src/components/looks.js");
 
 describe("looks", () => {
   it("should handle lookaheads", () => {

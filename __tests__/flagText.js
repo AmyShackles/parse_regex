@@ -1,4 +1,4 @@
-const { getFlagText } = require("../components/flagText.js");
+const { getFlagText } = require("../src/components/flagText.js");
 
 describe("getflagText", () => {
   it("should return an empty string if there are no flags", () => {

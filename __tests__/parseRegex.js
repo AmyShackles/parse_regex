@@ -1,4 +1,4 @@
-const { parseRegex } = require("../components/parseRegex.js");
+const { parseRegex } = require("../src/components/parseRegex.js");
 
 describe("parseRegex", () => {
   describe("anchor handling", () => {
@@ -31,8 +31,8 @@ describe("parseRegex", () => {
   describe("group handling", () => {
     describe("error handling", () => {
       it("should return an Invalid Regular Expression message if quantifiers in a group are invalid", () => {
-        expect(parseRegex("[ab]{6,3}")).toEqual(
-          "Invalid Regular Expression: Invalid regular expression, {6, 3}.  You cannot define a range where the lower range (6) is greater than higher range (3)"
+        expect(parseRegex("/[ab]{6,3}/")).toEqual(
+          "SyntaxError: Invalid regular expression: /[ab]{6,3}/: numbers out of order in {} quantifier"
         );
       });
     });
@@ -45,6 +45,24 @@ describe("parseRegex", () => {
       );
       expect(parseRegex(/[^123]{3,}/)).toEqual(
         "Match '\"not any of '1' or '2' or '3'\" at least three times'"
+      );
+    });
+    it("should handle capture groups", () => {
+      expect(parseRegex(/a(dog)/)).toEqual(
+        "Match 'a' followed by 'd' followed by 'o' followed by 'g' (creating a capture group of 'd' followed by 'o' followed by 'g')"
+      );
+      expect(parseRegex(/^a(dog)$/m)).toEqual(
+        "Match 'a' followed by 'd' followed by 'o' followed by 'g' (creating a capture group of 'd' followed by 'o' followed by 'g') to the start and end of the line using multiline search"
+      );
+    });
+    it("should handle non-capture groups", () => {
+      expect(parseRegex(/a(?:dog)/)).toEqual(
+        "Match 'a' followed by 'd' followed by 'o' followed by 'g' (creating a non-capture group of 'd' followed by 'o' followed by 'g')"
+      );
+    });
+    it("should handle named capture groups", () => {
+      expect(parseRegex(/(?<test>testing)or something/)).toEqual(
+        "Match 't' followed by 'e' followed by 's' followed by 't' followed by 'i' followed by 'n' followed by 'g' (creating a named capture group by the name of <test> of 't' followed by 'e' followed by 's' followed by 't' followed by 'i' followed by 'n' followed by 'g') followed by 'o' followed by 'r' followed by ' ' followed by 's' followed by 'o' followed by 'm' followed by 'e' followed by 't' followed by 'h' followed by 'i' followed by 'n' followed by 'g'"
       );
     });
   });
@@ -83,22 +101,22 @@ describe("parseRegex", () => {
       );
     });
     it("should handle errors", () => {
-      expect(parseRegex("7{5,4}")).toEqual(
-        "Invalid Regular Expression: Invalid regular expression, {5, 4}.  You cannot define a range where the lower range (5) is greater than higher range (4)"
+      expect(parseRegex("/7{5,4}/")).toEqual(
+        "SyntaxError: Invalid regular expression: /7{5,4}/: numbers out of order in {} quantifier"
       );
     });
     it("should handle valid quantifiers", () => {
-      expect(parseRegex("7{2,5}a")).toEqual(
+      expect(parseRegex("/7{2,5}a/")).toEqual(
         "Match \"'7' between two and five times\" followed by 'a'"
       );
-      expect(parseRegex("7+")).toEqual("Match \"'7' one or more times\"");
-      expect(parseRegex("7?")).toEqual("Match \"'7' zero or one time\"");
-      expect(parseRegex("7*")).toEqual("Match \"'7' zero or more times\"");
+      expect(parseRegex("/7+/")).toEqual("Match \"'7' one or more times\"");
+      expect(parseRegex("/7?/")).toEqual("Match \"'7' zero or one time\"");
+      expect(parseRegex("/7*/")).toEqual("Match \"'7' zero or more times\"");
     });
   });
   describe("dot", () => {
     it("should handle dot when dotall flag is not set", () => {
-      expect(parseRegex(".+")).toEqual(
+      expect(parseRegex("/.+/")).toEqual(
         "Match \"'any character except line breaks' one or more times\""
       );
     });
@@ -112,14 +130,14 @@ describe("parseRegex", () => {
     it("should handle \\uHHH format", () => {
       expect(parseRegex(/\u0041/)).toEqual("Match 'A'");
       expect(parseRegex(/\u0041b/)).toEqual("Match 'A' followed by 'b'");
-      expect(parseRegex("\u0041b")).toEqual("Match 'A' followed by 'b'");
+      expect(parseRegex("/\u0041b/")).toEqual("Match 'A' followed by 'b'");
       expect(parseRegex(/a\u0041b/)).toEqual(
         "Match 'a' followed by 'A' followed by 'b'"
       );
     });
     it("should handle \\u{HHHH} format if unicode flag is set", () => {
-      expect(parseRegex(/\u{0041}+/u)).toEqual(
-        "Match \"'A' one or more times\" using unicode search"
+      expect(parseRegex(/\u{0041}+/gimu)).toEqual(
+        "Match \"'A' one or more times\" using global, case-insensitive, multiline, and unicode search"
       );
       expect(parseRegex(/a\u{0041}b*/u)).toEqual(
         "Match 'a' followed by 'A' followed by \"'b' zero or more times\" using unicode search"
@@ -136,7 +154,7 @@ describe("parseRegex", () => {
   });
   describe("hexadecimal", () => {
     it("should handle a valid hexadecimal", () => {
-      expect(parseRegex("\x41")).toEqual("Match 'A'");
+      expect(parseRegex("/\x41/")).toEqual("Match 'A'");
       expect(parseRegex(/\x41/)).toEqual("Match 'A'");
     });
     it("should treat characters literally if not valid hex", () => {
@@ -156,7 +174,7 @@ describe("parseRegex", () => {
       expect(parseRegex(/\ra/)).toEqual(
         "Match 'a carriage return' followed by 'a'"
       );
-      expect(parseRegex("\\sFin\\.\\")).toEqual(
+      expect(parseRegex("/\\sFin\\./")).toEqual(
         "Match 'any space, tab, or line break' followed by 'F' followed by 'i' followed by 'n' followed by 'the '.' symbol'"
       );
     });
