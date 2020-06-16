@@ -2,9 +2,6 @@ function extractCaptures(string) {
   let captureRegex = /(?<non_capture_group>\(\?:.+?\))|(?<named_capture_group>\(\?<(?<name>.+?)>.+?\))|(?<capture_group>\([^\?].*?\))/g;
 
   let regular_expression = {};
-  let capture_group = [],
-    non_capture_group = [],
-    named_capture_group = [];
 
   const group = [...string.matchAll(captureRegex)].forEach((regex) => {
     let key = regex.groups.capture_group
