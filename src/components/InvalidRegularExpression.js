@@ -1,8 +1,8 @@
 class InvalidRegularExpression extends Error {
-  constructor(message) {
-    super(message);
+  constructor(specificMessage, ...params) {
+    super(...params);
     this.name = "Invalid Regular Expression";
-    this.message = message;
+    this.message = specificMessage;
   }
 }
 

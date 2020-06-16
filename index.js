@@ -1,4 +1,4 @@
-const { parseRegex } = require("./components/parseRegex");
+const { parseRegex } = require("./src/components/parseRegex");
 const repl = require("repl");
 
 function evaluate(cmd, context, filename, callback) {

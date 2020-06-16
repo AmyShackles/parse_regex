@@ -2,7 +2,8 @@ const InvalidRegularExpression = require("./InvalidRegularExpression.js");
 
 function anchors(regex, flags) {
   let multiline = flags && flags.includes("m");
-
+  regex = typeof regex === "string" ? regex : regex.toString();
+  regex = regex && regex.match(/\/.*\//s) ? regex.match(/\/.*\//s) : regex;
   let valid;
   if (regex[regex.length - 1] === "$" && regex[0] === "^") {
     try {

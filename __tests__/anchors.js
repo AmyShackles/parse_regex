@@ -5,8 +5,8 @@ const {
   isItEscaped,
   areAnchorsInCharacterSet,
   indexesOf,
-} = require("../components/anchors.js");
-const InvalidRegularExpression = require("../components/InvalidRegularExpression");
+} = require("../src/components/anchors.js");
+const InvalidRegularExpression = require("../src/components/InvalidRegularExpression");
 
 describe("anchors", () => {
   describe("anchors", () => {
@@ -33,7 +33,7 @@ describe("anchors", () => {
       expect(anchors("^something", "m")[0]).toEqual(`to the start of the line`);
     });
     test("should not error out if an excluded set is included", () => {
-      expect(anchors(/[^123]/.toString())[0]).not.toBeInstanceOf(
+      expect(anchors(RegExp("^[123]").toString())[0]).not.toBeInstanceOf(
         InvalidRegularExpression
       );
     });
