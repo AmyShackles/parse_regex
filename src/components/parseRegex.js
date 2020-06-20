@@ -31,6 +31,8 @@ function parseRegex(regex) {
   regularExpression.middle = "";
   regularExpression.end = ending ? ` ${ending}` : "";
   regularExpression.flags = getFlagText(flags);
+  regularExpression.captures = [""]; // Backreferences start at 1, not 0
+  regularExpression.namedCaptures = {};
   let i = 0;
   let middle = [];
 
@@ -63,11 +65,22 @@ function parseRegex(regex) {
           } else {
             group = group.slice(6);
           }
+          if (key === "named capture group" || key === "capture group") {
+            regularExpression["captures"].push(group);
+          }
+          if (key === "named capture group") {
+            const name = regularExpression[i][key].name;
+            if (regularExpression.namedCaptures[name] !== undefined) {
+              regularExpression.namedCaptures[name].push(group);
+            } else {
+              regularExpression.namedCaptures[name] = [group];
+            }
+          }
           const description =
             key === "named capture group"
-              ? `(creating a ${key} by the name of <${regularExpression[i][key].name}> of ${group})`
-              : `(creating a ${key} of ${group})`;
-          middle.push(`${group} ${description}`);
+              ? `(creating a ${key} by the name of <${regularExpression[i][key].name}>)`
+              : `(creating a ${key})`;
+          middle.push(`"${group} ${description}"`);
           i = endIndex;
         }
         if (regexString[i + 1] === "?") {
@@ -120,6 +133,7 @@ function parseRegex(regex) {
         break;
       case "\\":
         const charAfterEscape = parseBackslash(regexString[++i]);
+        let newIndex;
         if (charAfterEscape !== undefined) {
           currentPhrase.push(charAfterEscape);
         } else if (regexString[i] === "x") {
@@ -143,6 +157,20 @@ function parseRegex(regex) {
           } else {
             middle.push(unicode);
             i = index;
+          }
+        } else if (regexString[i] === "k") {
+          if (regexString[i + 1] === "<") {
+            const endOfName = regexString.indexOf(">", i + 2);
+            const name = regexString.slice(i + 2, endOfName);
+            middle.push(`"${regularExpression.namedCaptures[name]}"`);
+            i = endOfName;
+          } else {
+            middle.push("'k' followed by '<'");
+          }
+        } else if (!isNaN(regexString[i])) {
+          const capture = regularExpression.captures[regexString[i]];
+          if (capture) {
+            middle.push(`"${capture}"`);
           }
         }
         break;
