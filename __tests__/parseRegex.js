@@ -50,20 +50,20 @@ describe("parseRegex", () => {
     });
     it("should handle capture groups", () => {
       expect(parseRegex(/a(dog)/)).toEqual(
-        "Match 'a' followed by 'd' followed by 'o' followed by 'g' (creating a capture group of 'd' followed by 'o' followed by 'g')"
+        "Match 'a' followed by \"'d' followed by 'o' followed by 'g' (creating a capture group)\""
       );
       expect(parseRegex(/^a(dog)$/m)).toEqual(
-        "Match 'a' followed by 'd' followed by 'o' followed by 'g' (creating a capture group of 'd' followed by 'o' followed by 'g') to the start and end of the line using multiline search"
+        "Match 'a' followed by \"'d' followed by 'o' followed by 'g' (creating a capture group)\" to the start and end of the line using multiline search"
       );
     });
     it("should handle non-capture groups", () => {
       expect(parseRegex(/a(?:dog)/)).toEqual(
-        "Match 'a' followed by 'd' followed by 'o' followed by 'g' (creating a non-capture group of 'd' followed by 'o' followed by 'g')"
+        "Match 'a' followed by \"'d' followed by 'o' followed by 'g' (creating a non-capture group)\""
       );
     });
     it("should handle named capture groups", () => {
       expect(parseRegex(/(?<test>testing)or something/)).toEqual(
-        "Match 't' followed by 'e' followed by 's' followed by 't' followed by 'i' followed by 'n' followed by 'g' (creating a named capture group by the name of <test> of 't' followed by 'e' followed by 's' followed by 't' followed by 'i' followed by 'n' followed by 'g') followed by 'o' followed by 'r' followed by ' ' followed by 's' followed by 'o' followed by 'm' followed by 'e' followed by 't' followed by 'h' followed by 'i' followed by 'n' followed by 'g'"
+        "Match \"'t' followed by 'e' followed by 's' followed by 't' followed by 'i' followed by 'n' followed by 'g' (creating a named capture group by the name of <test>)\" followed by 'o' followed by 'r' followed by ' ' followed by 's' followed by 'o' followed by 'm' followed by 'e' followed by 't' followed by 'h' followed by 'i' followed by 'n' followed by 'g'"
       );
     });
   });
@@ -201,6 +201,25 @@ describe("parseRegex", () => {
       );
       expect(parseRegex(/\Bcat/)).toEqual(
         "Match 'a word character followed by another word character' followed by 'c' followed by 'a' followed by 't'"
+      );
+    });
+  });
+  describe("backreferences", () => {
+    it("should handle named backreferences", () => {
+      expect(parseRegex(/(?<test>test)\k<test>/)).toEqual(
+        "Match \"'t' followed by 'e' followed by 's' followed by 't' (creating a named capture group by the name of <test>)\" followed by \"'t' followed by 'e' followed by 's' followed by 't'\""
+      );
+      expect(parseRegex(/(?<test>test)\1/)).toEqual(
+        "Match \"'t' followed by 'e' followed by 's' followed by 't' (creating a named capture group by the name of <test>)\" followed by \"'t' followed by 'e' followed by 's' followed by 't'\""
+      );
+    });
+    it("should handle other backreferences", () => {
+      expect(
+        parseRegex(
+          /(ABC) as easy as (123), simple as do re mi, \1, \2, baby, you and me, girl/
+        )
+      ).toEqual(
+        "Match \"'A' followed by 'B' followed by 'C' (creating a capture group)\" followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by 'e' followed by 'a' followed by 's' followed by 'y' followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by \"'1' followed by '2' followed by '3' (creating a capture group)\" followed by ',' followed by ' ' followed by 's' followed by 'i' followed by 'm' followed by 'p' followed by 'l' followed by 'e' followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by 'd' followed by 'o' followed by ' ' followed by 'r' followed by 'e' followed by ' ' followed by 'm' followed by 'i' followed by ',' followed by ' ' followed by \"'A' followed by 'B' followed by 'C'\" followed by ',' followed by ' ' followed by \"'1' followed by '2' followed by '3'\" followed by ',' followed by ' ' followed by 'b' followed by 'a' followed by 'b' followed by 'y' followed by ',' followed by ' ' followed by 'y' followed by 'o' followed by 'u' followed by ' ' followed by 'a' followed by 'n' followed by 'd' followed by ' ' followed by 'm' followed by 'e' followed by ',' followed by ' ' followed by 'g' followed by 'i' followed by 'r' followed by 'l'"
       );
     });
   });
