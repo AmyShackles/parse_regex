@@ -33,33 +33,40 @@ function parseRegex(regex) {
   regularExpression.flags = getFlagText(flags);
   regularExpression.captures = [""]; // Backreferences start at 1, not 0
   regularExpression.namedCaptures = {};
-  let i = 0;
+  let currentCharacterIndex = 0;
   let middle = [];
 
-  while (i < regexString.length) {
+  while (currentCharacterIndex < regexString.length) {
     let currentPhrase = [];
-    let prevPhrase = middle.length > 0 ? middle : regexString.slice(0, i);
-    switch (regexString[i]) {
+    let prevPhrase =
+      middle.length > 0 ? middle : regexString.slice(0, currentCharacterIndex);
+    switch (regexString[currentCharacterIndex]) {
       case "[":
-        let [group, index] = handleGroup(regexString, i + 1);
+        let [group, index] = handleGroup(
+          regexString,
+          currentCharacterIndex + 1
+        );
         if (group.startsWith("Invalid")) {
           return group;
         }
-        // We only want to start searching after i
-        i = index;
+        // We only want to start searching after currentCharacterIndex
+        currentCharacterIndex = index;
         currentPhrase.push(group);
         break;
       case "(":
-        if (regularExpression[i]) {
-          let key = regularExpression[i]["capture group"]
+        if (regularExpression[currentCharacterIndex]) {
+          let key = regularExpression[currentCharacterIndex]["capture group"]
             ? "capture group"
-            : regularExpression[i]["non-capture group"]
+            : regularExpression[currentCharacterIndex]["non-capture group"]
             ? "non-capture group"
-            : regularExpression[i]["named capture group"]
+            : regularExpression[currentCharacterIndex]["named capture group"]
             ? "named capture group"
             : "";
-          const endIndex = regularExpression[i][key].endingIndex - 1;
-          let group = parseRegex(`/${regularExpression[i][key].group}/`);
+          const endIndex =
+            regularExpression[currentCharacterIndex][key].endingIndex - 1;
+          let group = parseRegex(
+            `/${regularExpression[currentCharacterIndex][key].group}/`
+          );
           if (group === "Match ") {
             group = "";
           } else {
@@ -69,7 +76,7 @@ function parseRegex(regex) {
             regularExpression["captures"].push(group);
           }
           if (key === "named capture group") {
-            const name = regularExpression[i][key].name;
+            const name = regularExpression[currentCharacterIndex][key].name;
             if (regularExpression.namedCaptures[name] !== undefined) {
               regularExpression.namedCaptures[name].push(group);
             } else {
@@ -78,13 +85,13 @@ function parseRegex(regex) {
           }
           const description =
             key === "named capture group"
-              ? `(creating a ${key} by the name of <${regularExpression[i][key].name}>)`
+              ? `(creating a ${key} by the name of <${regularExpression[currentCharacterIndex][key].name}>)`
               : `(creating a ${key})`;
           middle.push(`"${group} ${description}"`);
-          i = endIndex;
+          currentCharacterIndex = endIndex;
         }
-        if (regexString[i + 1] === "?") {
-          if (regexString[i + 2] === "<") {
+        if (regexString[currentCharacterIndex + 1] === "?") {
+          if (regexString[currentCharacterIndex + 2] === "<") {
             let endOfLookBehind = regexString.indexOf(")") + 1;
             let nextPhrase = parseRegex(
               `/${regexString.slice(endOfLookBehind)}/`
@@ -96,7 +103,7 @@ function parseRegex(regex) {
             }
             let [look, index] = handleNegativeLooks(
               regexString,
-              i + 3,
+              currentCharacterIndex + 3,
               nextPhrase
             );
             if (look instanceof InvalidRegularExpression) {
@@ -109,66 +116,83 @@ function parseRegex(regex) {
 
             let [look, index] = handlePositiveLooks(
               regexString,
-              i + 2,
+              currentCharacterIndex + 2,
               prevPhrase
             );
-            // We want to search for the index of the closing character after i
+            // We want to search for the index of the closing character after currentCharacterIndex
             middle = [look];
-            i = index;
+            currentCharacterIndex = index;
           }
         }
         break;
       case "{":
-        let [quantifiers, indexAfterRange] = handleQuantifiers(regexString, i);
+        let [quantifiers, indexAfterRange] = handleQuantifiers(
+          regexString,
+          currentCharacterIndex
+        );
         if (quantifiers instanceof InvalidRegularExpression) {
           return `${quantifiers.name}: ${quantifiers.message}`;
-        } else if (indexAfterRange === i) {
-          middle.push(`'${regexString[i]}'`);
+        } else if (indexAfterRange === currentCharacterIndex) {
+          middle.push(`'${regexString[currentCharacterIndex]}'`);
         } else {
-          i = indexAfterRange;
+          currentCharacterIndex = indexAfterRange;
           prevPhrase =
             prevPhrase.length > 0 ? prevPhrase[prevPhrase.length - 1] : "";
           middle[middle.length - 1] = `"${prevPhrase}${quantifiers}"`;
         }
         break;
       case "\\":
-        const charAfterEscape = parseBackslash(regexString[++i]);
+        const charAfterEscape = parseBackslash(
+          regexString[++currentCharacterIndex]
+        );
         let newIndex;
         if (charAfterEscape !== undefined) {
           currentPhrase.push(charAfterEscape);
-        } else if (regexString[i] === "x") {
-          const hex = regexString.slice(i + 1, i + 3);
+        } else if (regexString[currentCharacterIndex] === "x") {
+          const hex = regexString.slice(
+            currentCharacterIndex + 1,
+            currentCharacterIndex + 3
+          );
           const codepoint = parseInt(hex, 16);
           const parsedHex = codepoint && String.fromCodePoint(codepoint);
           if (parsedHex) {
             currentPhrase.push(`'${parsedHex}'`);
-            i += 3;
+            currentCharacterIndex += 3;
           } else {
-            currentPhrase.push(`'\\' followed by '${regexString[i]}'`);
+            currentPhrase.push(
+              `'\\' followed by '${regexString[currentCharacterIndex]}'`
+            );
           }
-        } else if (regexString[i] === "u") {
+        } else if (regexString[currentCharacterIndex] === "u") {
           let [unicode, index] = parseUnicode(
             regexString,
-            i,
+            currentCharacterIndex,
             flags ? flags.includes("u") : false
           );
-          if (i === index) {
+          if (currentCharacterIndex === index) {
             middle.push(unicode);
           } else {
             middle.push(unicode);
-            i = index;
+            currentCharacterIndex = index;
           }
-        } else if (regexString[i] === "k") {
-          if (regexString[i + 1] === "<") {
-            const endOfName = regexString.indexOf(">", i + 2);
-            const name = regexString.slice(i + 2, endOfName);
+        } else if (regexString[currentCharacterIndex] === "k") {
+          if (regexString[currentCharacterIndex + 1] === "<") {
+            const endOfName = regexString.indexOf(
+              ">",
+              currentCharacterIndex + 2
+            );
+            const name = regexString.slice(
+              currentCharacterIndex + 2,
+              endOfName
+            );
             middle.push(`"${regularExpression.namedCaptures[name]}"`);
-            i = endOfName;
+            currentCharacterIndex = endOfName;
           } else {
             middle.push("'k' followed by '<'");
           }
-        } else if (!isNaN(regexString[i])) {
-          const capture = regularExpression.captures[regexString[i]];
+        } else if (!isNaN(regexString[currentCharacterIndex])) {
+          const capture =
+            regularExpression.captures[regexString[currentCharacterIndex]];
           if (capture) {
             middle.push(`"${capture}"`);
           }
@@ -197,13 +221,13 @@ function parseRegex(regex) {
         }
         break;
       default:
-        middle.push(`'${regexString[i]}'`);
+        middle.push(`'${regexString[currentCharacterIndex]}'`);
         break;
     }
     if (currentPhrase.length > 0) {
       middle.push(currentPhrase.join(""));
     }
-    i++;
+    currentCharacterIndex++;
   }
   regularExpression.middle = middle
     ? middle.length > 1
