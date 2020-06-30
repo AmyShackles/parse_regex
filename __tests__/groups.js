@@ -21,7 +21,7 @@ describe("handleGroups", () => {
     ]);
   });
   test("it should handle escaped characters in character set", () => {
-    expect(groups(["\\", ".", "]"], 0)).toEqual(["'the '.' symbol'", 2]);
+    expect(groups(["\\", ".", "]"], 0)).toEqual(["a period", 2]);
   });
   test("it should handle if a range is invalid", () => {
     expect(groups(["a", "-", ".", "]"], 0)).toEqual(["'a' or '-' or '.'", 3]);

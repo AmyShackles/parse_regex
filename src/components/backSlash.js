@@ -21,10 +21,10 @@ const backSlash = {
   "*": "'the '*' symbol'",
   "(": "'the '(' symbol'",
   ")": "'the ')' symbol'",
-  "?": "'the '?' symbol'",
+  "?": "'a question mark'",
   $: "'the '$' symbol'",
   "|": "'the '|' symbol'",
-  ".": "'the '.' symbol'",
+  ".": "a period",
 };
 
 /*  TODO:  

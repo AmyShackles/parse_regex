@@ -8,7 +8,7 @@ describe("backSlash", () => {
       );
     });
     test("should return valid escape meanings", () => {
-      expect(parseBackslash(".")).toEqual("'the '.' symbol'");
+      expect(parseBackslash(".")).toEqual("a period");
     });
     test("should return undefined if there isn't a special case", () => {
       expect(parseBackslash("c")).toEqual(undefined);

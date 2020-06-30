@@ -50,21 +50,21 @@ describe("parseRegex", () => {
     });
     it("should handle capture groups", () => {
       expect(parseRegex(/a(dog)/)).toEqual(
-        "Match 'a' followed by \"'d' followed by 'o' followed by 'g' (creating a capture group)\""
+        "Match 'a' followed by \"dog\" (creating a capture group)"
       );
       expect(parseRegex(/^a(dog)$/m)).toEqual(
-        "Match 'a' followed by \"'d' followed by 'o' followed by 'g' (creating a capture group)\" to the start and end of the line using multiline search"
-      );
+        "Match 'a' followed by \"dog\" (creating a capture group) to the start and end of the line using multiline search"
+        );
     });
     it("should handle non-capture groups", () => {
       expect(parseRegex(/a(?:dog)/)).toEqual(
-        "Match 'a' followed by \"'d' followed by 'o' followed by 'g' (creating a non-capture group)\""
+        "Match 'a' followed by \"dog\" (creating a non-capture group)"
       );
     });
     it("should handle named capture groups", () => {
       expect(parseRegex(/(?<test>testing)or something/)).toEqual(
-        "Match \"'t' followed by 'e' followed by 's' followed by 't' followed by 'i' followed by 'n' followed by 'g' (creating a named capture group by the name of <test>)\" followed by 'o' followed by 'r' followed by ' ' followed by 's' followed by 'o' followed by 'm' followed by 'e' followed by 't' followed by 'h' followed by 'i' followed by 'n' followed by 'g'"
-      );
+        "Match \"testing\" (creating a named capture group by the name of 'test') followed by 'o' followed by 'r' followed by ' ' followed by 's' followed by 'o' followed by 'm' followed by 'e' followed by 't' followed by 'h' followed by 'i' followed by 'n' followed by 'g'"
+      )
     });
   });
   describe("looks", () => {
@@ -88,10 +88,10 @@ describe("parseRegex", () => {
     });
     it("should handle lookbehinds", () => {
       expect(parseRegex(/(?<=not) good/)).toEqual(
-        "Match \"' ' followed by 'g' followed by 'o' followed by 'o' followed by 'd'\" only if \"' ' followed by 'g' followed by 'o' followed by 'o' followed by 'd'\" follows \"'n' followed by 'o' followed by 't'\""
+        "Match \" good\" only if \" good\" follows \"'n' followed by 'o' followed by 't'\""
       );
-      expect(parseRegex(/(?<!not)good/)).toEqual(
-        "Match \"'g' followed by 'o' followed by 'o' followed by 'd'\" only if \"'g' followed by 'o' followed by 'o' followed by 'd'\" does not follow \"'n' followed by 'o' followed by 't'\""
+      expect(parseRegex(/(?<!not) good/)).toEqual(
+        "Match \" good\" only if \" good\" does not follow \"'n' followed by 'o' followed by 't'\""
       );
     });
   });
@@ -176,7 +176,7 @@ describe("parseRegex", () => {
         "Match 'a carriage return' followed by 'a'"
       );
       expect(parseRegex("/\\sFin\\./")).toEqual(
-        "Match 'any space, tab, or line break' followed by 'F' followed by 'i' followed by 'n' followed by 'the '.' symbol'"
+        "Match 'any space, tab, or line break' followed by 'F' followed by 'i' followed by 'n' followed by a period"
       );
     });
     it("should handle digit classes", () => {
@@ -207,10 +207,10 @@ describe("parseRegex", () => {
   describe("backreferences", () => {
     it("should handle named backreferences", () => {
       expect(parseRegex(/(?<test>test)\k<test>/)).toEqual(
-        "Match \"'t' followed by 'e' followed by 's' followed by 't' (creating a named capture group by the name of <test>)\" followed by \"'t' followed by 'e' followed by 's' followed by 't'\""
-      );
+        "Match \"test\" (creating a named capture group by the name of 'test') followed by the repeat of named capture group 'test' containing \"test\""
+        );
       expect(parseRegex(/(?<test>test)\1/)).toEqual(
-        "Match \"'t' followed by 'e' followed by 's' followed by 't' (creating a named capture group by the name of <test>)\" followed by \"'t' followed by 'e' followed by 's' followed by 't'\""
+        "Match \"test\" (creating a named capture group by the name of 'test') followed by the repeat of capture group containing \"test\""
       );
     });
     it("should handle other backreferences", () => {
@@ -219,8 +219,8 @@ describe("parseRegex", () => {
           /(ABC) as easy as (123), simple as do re mi, \1, \2, baby, you and me, girl/
         )
       ).toEqual(
-        "Match \"'A' followed by 'B' followed by 'C' (creating a capture group)\" followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by 'e' followed by 'a' followed by 's' followed by 'y' followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by \"'1' followed by '2' followed by '3' (creating a capture group)\" followed by ',' followed by ' ' followed by 's' followed by 'i' followed by 'm' followed by 'p' followed by 'l' followed by 'e' followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by 'd' followed by 'o' followed by ' ' followed by 'r' followed by 'e' followed by ' ' followed by 'm' followed by 'i' followed by ',' followed by ' ' followed by \"'A' followed by 'B' followed by 'C'\" followed by ',' followed by ' ' followed by \"'1' followed by '2' followed by '3'\" followed by ',' followed by ' ' followed by 'b' followed by 'a' followed by 'b' followed by 'y' followed by ',' followed by ' ' followed by 'y' followed by 'o' followed by 'u' followed by ' ' followed by 'a' followed by 'n' followed by 'd' followed by ' ' followed by 'm' followed by 'e' followed by ',' followed by ' ' followed by 'g' followed by 'i' followed by 'r' followed by 'l'"
-      );
+        "Match \"ABC\" (creating a capture group) followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by 'e' followed by 'a' followed by 's' followed by 'y' followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by \"123\" (creating a capture group) followed by ',' followed by ' ' followed by 's' followed by 'i' followed by 'm' followed by 'p' followed by 'l' followed by 'e' followed by ' ' followed by 'a' followed by 's' followed by ' ' followed by 'd' followed by 'o' followed by ' ' followed by 'r' followed by 'e' followed by ' ' followed by 'm' followed by 'i' followed by ',' followed by ' ' followed by the repeat of capture group containing \"ABC\" followed by ',' followed by ' ' followed by the repeat of capture group containing \"123\" followed by ',' followed by ' ' followed by 'b' followed by 'a' followed by 'b' followed by 'y' followed by ',' followed by ' ' followed by 'y' followed by 'o' followed by 'u' followed by ' ' followed by 'a' followed by 'n' followed by 'd' followed by ' ' followed by 'm' followed by 'e' followed by ',' followed by ' ' followed by 'g' followed by 'i' followed by 'r' followed by 'l'"
+        );
     });
   });
   describe("other types of escapes", () => {
@@ -232,10 +232,10 @@ describe("parseRegex", () => {
         "Match 'the '$' symbol' to the end of the string"
       );
       expect(parseRegex(/\.pdf/)).toEqual(
-        "Match 'the '.' symbol' followed by 'p' followed by 'd' followed by 'f'"
+        "Match a period followed by 'p' followed by 'd' followed by 'f'"
       );
       expect(parseRegex(/\|\?\(\)/)).toEqual(
-        "Match 'the '|' symbol' followed by 'the '?' symbol' followed by 'the '(' symbol' followed by 'the ')' symbol'"
+        "Match 'the '|' symbol' followed by 'a question mark' followed by 'the '(' symbol' followed by 'the ')' symbol'"
       );
     });
   });
