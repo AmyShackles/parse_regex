@@ -9,6 +9,9 @@ const { parseUnicode } = require("./unicode.js");
 const { getFlagText } = require("./flagText.js");
 const { extractCaptures } = require("./captureGroups.js");
 
+let inLoop = false;
+let inCapture = false;
+
 function parseRegex(regex) {
   let { regexString, flags = "" } = initialize(regex);
   if (regexString instanceof InvalidRegularExpression) {
@@ -64,9 +67,11 @@ function parseRegex(regex) {
             : "";
           const endIndex =
             regularExpression[currentCharacterIndex][key].endingIndex - 1;
+            inLoop = true;
           let group = parseRegex(
             `/${regularExpression[currentCharacterIndex][key].group}/`
           );
+          inLoop = false;
           if (group === "Match ") {
             group = "";
           } else {
@@ -85,17 +90,19 @@ function parseRegex(regex) {
           }
           const description =
             key === "named capture group"
-              ? `(creating a ${key} by the name of <${regularExpression[currentCharacterIndex][key].name}>)`
+              ? `(creating a ${key} by the name of '${regularExpression[currentCharacterIndex][key].name}')`
               : `(creating a ${key})`;
-          middle.push(`"${group} ${description}"`);
+          middle.push(`"${group}" ${description}`);
           currentCharacterIndex = endIndex;
         }
         if (regexString[currentCharacterIndex + 1] === "?") {
           if (regexString[currentCharacterIndex + 2] === "<") {
             let endOfLookBehind = regexString.indexOf(")") + 1;
+            inLoop = true;
             let nextPhrase = parseRegex(
               `/${regexString.slice(endOfLookBehind)}/`
             );
+            inLoop = false;
             if (nextPhrase === "Match ") {
               nextPhrase = "";
             } else {
@@ -185,7 +192,11 @@ function parseRegex(regex) {
               currentCharacterIndex + 2,
               endOfName
             );
-            middle.push(`"${regularExpression.namedCaptures[name]}"`);
+            if (regularExpression.namedCaptures[name] !== undefined) {
+              middle.push(`the repeat of named capture group '${name}' containing "${regularExpression.namedCaptures[name]}"`);
+            } else {
+
+            }
             currentCharacterIndex = endOfName;
           } else {
             middle.push("'k' followed by '<'");
@@ -194,7 +205,7 @@ function parseRegex(regex) {
           const capture =
             regularExpression.captures[regexString[currentCharacterIndex]];
           if (capture) {
-            middle.push(`"${capture}"`);
+            middle.push(`the repeat of capture group containing "${capture}"`);
           }
         }
         break;
@@ -221,19 +232,24 @@ function parseRegex(regex) {
         }
         break;
       default:
-        middle.push(`'${regexString[currentCharacterIndex]}'`);
+        currentPhrase.push(`'${regexString[currentCharacterIndex]}'`);
         break;
     }
     if (currentPhrase.length > 0) {
-      middle.push(currentPhrase.join(""));
+      middle.push(currentPhrase.join());
     }
     currentCharacterIndex++;
   }
-  regularExpression.middle = middle
-    ? middle.length > 1
-      ? middle.join(" followed by ")
-      : middle
-    : "";
+  if (middle && middle.length && inLoop) {
+    middle = middle.map(string => string.replace(/'/g, ""));
+    middle = middle.join("");
+  } else if (middle && middle.length > 1) {
+    middle = middle.join(" followed by ");
+  }
+  if (!middle) {
+    middle = "";
+  }
+  regularExpression.middle = middle;
   return `${regularExpression.start} ${regularExpression.middle}${regularExpression.end}${regularExpression.flags}`;
 }
 
