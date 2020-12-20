@@ -47,7 +47,7 @@ if (require.main == module) {
     console.log(parseRegex(process.argv[2]));
   } else {
     // Interactive prompt
-    initializeRepl();
+    return initializeRepl();
   }
 }
 

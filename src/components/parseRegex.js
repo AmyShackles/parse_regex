@@ -240,12 +240,10 @@ function parseRegex(regex) {
     }
     currentCharacterIndex++;
   }
-  if (middle && middle.length && inLoop) {
-    middle = middle.map(string => string.replace(/'/g, ""));
+  if (middle && middle.length) {
+    middle = middle.map((string) => string.replace(/'/g, ""));
     middle = middle.join("");
-  } else if (middle && middle.length > 1) {
-    middle = middle.join(" followed by ");
-  }
+  } 
   if (!middle) {
     middle = "";
   }
